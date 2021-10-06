@@ -18,7 +18,7 @@ export async function createServer(): Promise<http.Server> {
   app.use(corsMiddleware)
 
   app.get('/', (_, res) => {
-    return res.send(`Quest API`)
+    return res.send(`Adventure Cards API`)
   })
 
   const server = http.createServer(app)

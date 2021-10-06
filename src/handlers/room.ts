@@ -4,28 +4,28 @@ import { v4 as uuidv4 } from 'uuid'
 import { store } from '../store/index'
 
 export function registerRoomHandlers(io: Server, socket: Socket): void {
-  socket.on('room:list', () => {
+  socket.on('game:list', () => {
     socket.emit('room:list', {
-      rooms: store.rooms,
+      rooms: store.games,
     })
   })
 
-  socket.on('room:join', ({ roomId }: { roomId: string }) => {
-    console.log(socket.id, 'joined room', roomId)
-    socket.join(roomId)
+  socket.on('game:join', ({ gameId }: { gameId: string }) => {
+    console.log(socket.id, 'joined game', gameId)
+    socket.join(gameId)
   })
 
-  socket.on('room:create', () => {
+  socket.on('game:create', () => {
     console.log(socket.id, 'created room')
 
     // generate gameId (uuid for now)
-    const roomId = uuidv4()
+    const gameId = uuidv4()
 
     // add this gameId to the global store of active games
-    store.rooms.push({
-      id: roomId,
+    store.games.push({
+      id: gameId,
     })
 
-    socket.emit('room:list', store.rooms)
+    socket.emit('game:list', store.games)
   })
 }

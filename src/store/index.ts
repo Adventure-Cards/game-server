@@ -1,13 +1,13 @@
-export type IRoom = {
+export type IGame = {
   id: string
 }
 
 export interface IStore {
-  rooms: IRoom[]
+  games: IGame[]
 }
 
 const store: IStore = {
-  rooms: [],
+  games: [],
 }
 
 export { store }
