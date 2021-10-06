@@ -2,7 +2,9 @@ import http from 'http'
 import { Server, Socket } from 'socket.io'
 
 import { registerConnectionHandlers } from '../handlers/connection'
-import { registerRoomHandlers } from '../handlers/room'
+import { registerLobbyHandlers } from '../handlers/lobby'
+
+import { store } from '../lib/store'
 
 export function createWebsocketServer(server: http.Server): Server {
   const io = new Server(server, {
@@ -12,6 +14,13 @@ export function createWebsocketServer(server: http.Server): Server {
     },
   })
 
+  // global timer to emit lobby updates
+  setInterval(() => {
+    io.sockets.emit('lobby:update', {
+      games: store.games,
+    })
+  }, 1000)
+
   return io
 }
 
@@ -20,8 +29,8 @@ export function registerEventHandlers(io: Server): void {
     console.log(socket.id, 'connected')
 
     registerConnectionHandlers(io, socket)
-    registerRoomHandlers(io, socket)
+    registerLobbyHandlers(io, socket)
   }
 
-  io.on('connect', onConnection)
+  io.on('connection', onConnection)
 }

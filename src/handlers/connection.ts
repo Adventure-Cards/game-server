@@ -1,6 +1,6 @@
 import { Server, Socket } from 'socket.io'
 
-import { store } from '../store'
+import { store } from '../lib/store'
 
 export function registerConnectionHandlers(io: Server, socket: Socket): void {
   const interval = setInterval(() => {
