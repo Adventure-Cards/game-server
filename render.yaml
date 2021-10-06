@@ -6,13 +6,13 @@ services:
     repo: https://github.com/Adventure-Cards/game-server-v0.git
     plan: standard
     branch: main
+    buildCommand: yarn && yarn build
+    startCommand: yarn start
     scaling:
       minInstances: 1
       maxInstances: 3
       targetMemoryPercent: 60
       targetCPUPercent: 60
-    buildCommand: yarn build
-    startCommand: yarn start
     envVars:
       - key: REDIS_HOST
         fromService:
