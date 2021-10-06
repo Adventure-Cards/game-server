@@ -4,22 +4,34 @@ import { v4 as uuidv4 } from 'uuid'
 import { IGameStatus, store } from '../lib/store'
 
 export function registerLobbyHandlers(io: Server, socket: Socket): void {
-  socket.on('game:create', () => {
-    console.log(socket.id, 'created game')
+  socket.on('game:create', ({ address }: { address: string }) => {
+    console.log(address, 'created game')
 
     store.games.push({
       id: uuidv4(),
       status: IGameStatus.NOT_STARTED,
-      playerIds: [socket.id],
+      playerIds: [address],
     })
   })
 
-  socket.on('game:join', ({ gameId }: { gameId: string }) => {
-    console.log(socket.id, 'joined game', gameId)
+  socket.on('game:join', ({ address, gameId }: { address: string; gameId: string }) => {
+    console.log(address, 'joined game', gameId)
+
+    const game = store.games.find((game) => game.id === gameId)
+    if (!game) {
+      console.warn(`game not found: ${gameId}`)
+      return
+    }
+
+    if (game.status === IGameStatus.STARTED) {
+      console.warn(`tried to join game in progress ${gameId}`)
+      return
+    }
 
     store.games.forEach((game) => {
       if (game.id === gameId) {
-        game.playerIds.push(socket.id)
+        game.status = IGameStatus.STARTED
+        game.playerIds.push(address)
       }
     })
   })
