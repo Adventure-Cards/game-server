@@ -42,15 +42,3 @@ services:
       name: redis-data
       mountPath: /var/lib/redis
       sizeGB: 1
-
-envVarGroups:
-  - name: game-server
-    envVars:
-      - key: PORT
-        value: 8001
-      - key: NODE_VERSION
-        value: 16.5.0
-      - key: ALLOWED_ORIGINS
-        value: '*'
-      - key: NODE_VERSION
-        value: 16.5.0
