@@ -6,7 +6,7 @@ services:
     repo: https://github.com/Adventure-Cards/game-server-v0.git
     plan: standard
     branch: main
-    buildCommand: yarn && yarn build
+    buildCommand: yarn install --production=false && yarn build
     startCommand: yarn start
     scaling:
       minInstances: 1
