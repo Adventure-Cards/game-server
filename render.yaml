@@ -1,0 +1,56 @@
+services:
+  # public web service
+  - type: web
+    name: game-server
+    env: node
+    repo: https://github.com/Adventure-Cards/game-server-v0.git
+    plan: standard
+    branch: main
+    scaling:
+      minInstances: 1
+      maxInstances: 3
+      targetMemoryPercent: 60
+      targetCPUPercent: 60
+    buildCommand: yarn build
+    startCommand: yarn start
+    envVars:
+      - key: REDIS_HOST
+        fromService:
+          name: redis
+          type: pserv
+          property: host
+      - key: REDIS_PORT
+        fromService:
+          name: redis
+          type: pserv
+          property: port
+      - key: NODE_ENV
+        value: 'production'
+      - key: NODE_VERSION
+        value: '16.5.0'
+      - key: PORT
+        value: '8001'
+      - key: ALLOWED_ORIGINS
+        value: '*'
+
+  # private Redis instance
+  - type: pserv
+    name: redis
+    env: docker
+    repo: https://github.com/render-examples/redis.git
+    disk:
+      name: redis-data
+      mountPath: /var/lib/redis
+      sizeGB: 1
+
+envVarGroups:
+  - name: game-server
+    envVars:
+      - key: PORT
+        value: 8001
+      - key: NODE_VERSION
+        value: 16.5.0
+      - key: ALLOWED_ORIGINS
+        value: '*'
+      - key: NODE_VERSION
+        value: 16.5.0
