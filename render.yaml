@@ -31,7 +31,7 @@ services:
       - key: PORT
         value: '8001'
       - key: ALLOWED_ORIGINS
-        value: '*'
+        value: '0xadventure.cards'
 
   # private Redis instance
   - type: pserv

@@ -1,20 +1,17 @@
-export type IGame = {
-  id: string
-  status: IGameStatus
-  playerIds: string[]
-}
-
-export enum IGameStatus {
-  STARTED = 'STARTED',
-  NOT_STARTED = 'NOT_STARTED',
-}
+import type { IGameMetadata, IGame } from './game/types'
 
 export interface IStore {
-  games: IGame[]
+  lobby: {
+    games: { [gameId: string]: IGameMetadata }
+  }
+  games: { [gameId: string]: IGame }
 }
 
 const store: IStore = {
-  games: [],
+  lobby: {
+    games: {},
+  },
+  games: {},
 }
 
 export { store }

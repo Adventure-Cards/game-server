@@ -14,17 +14,17 @@ export function createWebsocketServer(server: http.Server): Server {
     },
   })
 
-  // global timer to emit lobby updates
-  setInterval(() => {
-    io.sockets.emit('lobby:update', {
-      games: store.games,
-    })
-  }, 1000)
-
   return io
 }
 
 export function registerEventHandlers(io: Server): void {
+  // global timer to emit lobby updates
+  setInterval(() => {
+    io.sockets.emit('lobby:update', {
+      games: store.lobby.games,
+    })
+  }, 500)
+
   const onConnection = (socket: Socket) => {
     console.log(socket.id, 'connected')
 
