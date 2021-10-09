@@ -38,7 +38,7 @@ export async function createGame(metadata: IGameMetadata): Promise<IGame> {
         id: uuidv4(),
         address: address,
         life: 20,
-        mana: 0,
+        mana: 1,
         cards: deck.cards,
 
         availableActions: [],
@@ -53,7 +53,7 @@ export async function createGame(metadata: IGameMetadata): Promise<IGame> {
     players: players,
     hasPriority: players[0].id,
     hasTurn: players[0].id,
-    phase: Phase.START,
+    phase: Phase.MAIN,
     stack: [],
     turn: 1,
   }

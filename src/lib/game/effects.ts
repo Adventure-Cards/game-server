@@ -46,9 +46,39 @@ function processEffectCore(initialGame: IGame, effect: IEffect, player: IPlayer)
   let game = { ...initialGame }
 
   switch (effect.type) {
-    case EffectType.RELEASE_PRIORITY:
-      game = advancePhase(game)
-      break
+    case EffectType.RELEASE_PRIORITY: {
+      // first get the active and inactive players
+      const activePlayer = game.players.find((player) => player.id === game.hasTurn)
+      const inactivePlayer = game.players.find((player) => player.id !== game.hasTurn)
+      if (!activePlayer || !inactivePlayer) {
+        throw new Error(`unable to find active/inactive players`)
+      }
+
+      // if this RELEASE_PRIORITY action was submitted by the active player,
+      // pass priority to the inactive player
+      if (player.id === activePlayer.id) {
+        game.hasPriority = inactivePlayer.id
+        break
+      }
+
+      // if this RELEASE_PRIORITY action was submitted by the inactive player,
+      //   if there's something on the stack,
+      //     process an item from the stack and pass priority back to active player
+      //   if there's nothing on the stack,
+      //     advance the phase
+      if (player.id === inactivePlayer.id) {
+        const stackItem = game.stack.pop()
+        if (stackItem) {
+          game = processEffectItem(game, stackItem.effectItem)
+          game.hasPriority = activePlayer.id
+        } else {
+          game = advancePhase(game)
+        }
+        break
+      }
+
+      throw new Error(`not able to assign RELEASE_PRIORITY action to any player`)
+    }
     default:
       throw new Error(`unhandled EffectType: ${effect.type}`)
   }
@@ -111,38 +141,57 @@ function processEffectCast(initialGame: IGame, effect: IEffect, cardId: string):
 function advancePhase(initialGame: IGame): IGame {
   let game = { ...initialGame }
 
-  const playerWhoHasTurn = game.players.find((player) => player.id === game.hasTurn)
-  if (!playerWhoHasTurn) {
-    throw new Error('active player not found')
+  const activePlayer = game.players.find((player) => player.id === game.hasTurn)
+  const inactivePlayer = game.players.find((player) => player.id !== game.hasTurn)
+  if (!activePlayer || !inactivePlayer) {
+    throw new Error(`unable to find active/inactive players`)
   }
 
   // eventually, we might want this function to kick off other effects
-  // which update the game state. in any case, need to support effects
-  // triggered by other effects
+  // instead of making these game state updates inline
 
   if (game.phase === Phase.START) {
+    game.phase = Phase.MAIN
+    // process MAIN phase effects here:
+
+    // give priority to the active player for start of combat phase
+    game.hasPriority = activePlayer.id
+  } else if (game.phase === Phase.MAIN) {
+    game.phase = Phase.COMBAT
+    // Process COMBAT phase effects here:
+
+    // give priority to the active player for start of combat phase
+    game.hasPriority = activePlayer.id
+  } else if (game.phase === Phase.COMBAT) {
+    game.phase = Phase.END
+    // Process END phase effects here:
+
+    // TODO enchantment triggered abilities
+    // immediately advance the phase without giving anyone priority
+    game = advancePhase(game)
+  } else if (game.phase === Phase.END) {
+    game.phase = Phase.START
+    // Process START phase effects here
+
+    game.turn += 1
+    game.hasTurn = inactivePlayer.id
+    game.hasPriority = inactivePlayer.id
+
     // untap permanents
-    playerWhoHasTurn.cards.forEach((card) => {
+    inactivePlayer.cards.forEach((card) => {
       if (card.location === CardLocation.BATTLEFIELD) {
         card.tapped = false
       }
     })
 
     // draw a card
-    game = drawCard(game, playerWhoHasTurn.id)
+    game = drawCard(game, inactivePlayer.id)
 
     // reset mana to current turn count
-    playerWhoHasTurn.mana = game.turn
+    inactivePlayer.mana = game.turn
 
-    game.phase = Phase.MAIN
-  } else if (game.phase === Phase.MAIN) {
-    game.phase = Phase.COMBAT
-  } else if (game.phase === Phase.COMBAT) {
-    game.phase = Phase.END
-  } else if (game.phase === Phase.END) {
-    game.turn += 1
-    // TODO pass turn to other player here
-    game.phase = Phase.START
+    // immediately advance the phase without giving anyone priority
+    game = advancePhase(game)
   }
 
   return game

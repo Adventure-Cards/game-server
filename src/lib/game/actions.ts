@@ -32,10 +32,7 @@ export function updateAvailableActionsForPlayers(initialGame: IGame): IGame {
       card.actions = getActionsForCard(game, player, card)
     })
 
-    // const cardActions = player.deck.map((card) => getActionsForCard(game, player, card)).flat()
-    // availableActions = [...availableActions, ...cardActions]
-
-    if (game.hasPriority === player.id && game.stack.length === 0) {
+    if (game.hasPriority === player.id) {
       const releasePriorityAction: IAction = {
         type: ActionType.PRIORITY_ACTION,
         controllerId: player.id,
@@ -243,7 +240,7 @@ export function submitAction(initialGame: IGame, action: IAction): IGame {
     }
   }
 
-  // execute costs immediately (they never get added to the stack, just like MTG!)
+  // execute costs immediately (they never get added to the stack)
   for (const costItem of action.costItems) {
     game = processCostItem(game, costItem)
   }
@@ -254,17 +251,28 @@ export function submitAction(initialGame: IGame, action: IAction): IGame {
       case EffectExecutionType.IMMEDIATE:
         game = processEffectItem(game, effectItem)
         break
-      case EffectExecutionType.RESPONDABLE:
-        // if its a casting action, must move card to stack
+      case EffectExecutionType.RESPONDABLE: {
+        // if its a casting action, must move card location to stack
         if (action.type === ActionType.CAST_ACTION) {
           game = moveCardToStack(game, action.cardId)
         }
 
+        // now add the card effect to the stack
         game.stack.push({
           controllerId: action.controllerId,
           effectItem: effectItem,
         })
+
+        // and finally pass priority to the other player
+        const castingPlayer = game.players.find((player) => player.id === action.controllerId)
+        const respondingPlayer = game.players.find((player) => player.id !== action.controllerId)
+        if (!castingPlayer || !respondingPlayer) {
+          throw new Error(`unable to find castingPlayer/respondingPlayer players`)
+        }
+        game.hasPriority = respondingPlayer.id
+
         break
+      }
       default:
         throw new Error('unhandled effect execution type')
     }

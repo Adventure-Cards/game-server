@@ -47,8 +47,9 @@ export function registerLobbyHandlers(io: Server, socket: Socket): void {
       ],
     }
 
-    // join the socket room for this game
-    socket.join(gameId)
+    // // join the "room" for this player (server will send updates only to this room)
+    // TODO auth
+    socket.join(`${gameId}-${address}`)
   })
 
   socket.on('lobby:game:join', ({ address, gameId }: ILobbyGameJoin) => {
@@ -77,8 +78,11 @@ export function registerLobbyHandlers(io: Server, socket: Socket): void {
       deckId: null,
     })
 
-    // join the socket room for this game
-    socket.join(gameId)
+    // // join the "room" for this player (server will send updates only to this room)
+    // TODO auth
+
+    // SKIP FOR NOW WHILE DOING LOCAL PLAYTESTING
+    // socket.join(`${gameId}-${address}`)
   })
 
   socket.on('lobby:game:ready', async ({ address, gameId, deckId }: ILobbyGameReady) => {
@@ -121,8 +125,11 @@ export function registerLobbyHandlers(io: Server, socket: Socket): void {
       // create game
       store.games[gameId] = await createGame(store.lobby.games[gameId])
 
-      // start game!
-      io.to(gameId).emit('game:start', gameId)
+      // emit game:start event to each player
+      store.games[gameId].players.forEach((player) => {
+        console.log('emitting game:start:', `${gameId}-${player.address}`)
+        io.to(`${gameId}-${player.address}`).emit('game:start', gameId)
+      })
 
       // room-level timer to submit game state updates
       // const interval =
@@ -132,7 +139,7 @@ export function registerLobbyHandlers(io: Server, socket: Socket): void {
         game.players.forEach((player) => {
           const gameStateForPlayer = getGameStateForPlayer(game, player.address)
 
-          io.to(gameId).emit('game:update', gameStateForPlayer)
+          io.to(`${gameId}-${player.address}`).emit('game:update', gameStateForPlayer)
         })
       }, 500)
 
