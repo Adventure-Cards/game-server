@@ -1,42 +1,4 @@
-import { IGameMetadata, IGame, ICard, IAction, IStackItem, CardLocation, Phase } from './types'
-
-interface IGameStateForPlayer {
-  player: IPlayerForPlayer
-  opponent: IOpponentForPlayer
-
-  metadata: IGameMetadata
-  turn: number
-  phase: Phase
-  hasPriority: string
-  hasTurn: string
-  stack: IStackItem[]
-}
-
-export interface IPlayerForPlayer {
-  id: string
-  address: string
-  life: number
-  mana: number
-  hand: ICard[]
-  numberOfCardsInLibrary: number
-  battlefield: ICard[]
-  graveyard: ICard[]
-  stack: ICard[]
-  actions: IAction[]
-}
-
-export interface IOpponentForPlayer {
-  id: string
-  address: string
-  life: number
-  mana: number
-  numberOfCardsInHand: number
-  numberOfCardsInLibrary: number
-  battlefield: ICard[]
-  graveyard: ICard[]
-  stack: ICard[]
-  actions: IAction[]
-}
+import { IGameStateForPlayer, IGame, CardLocation, IGameStateForPlaytest } from './types'
 
 export function getGameStateForPlayer(game: IGame, address: string): IGameStateForPlayer {
   const player = game.players.find((player) => player.address === address)
@@ -77,6 +39,53 @@ export function getGameStateForPlayer(game: IGame, address: string): IGameStateF
       graveyard: opponent.cards.filter((card) => card.location === CardLocation.GRAVEYARD),
       stack: opponent.cards.filter((card) => card.location === CardLocation.STACK),
       actions: opponent.availableActions,
+    },
+    metadata: game.metadata,
+    turn: game.turn,
+    phase: game.phase,
+    hasPriority: game.hasPriority,
+    hasTurn: game.hasTurn,
+    stack: game.stack,
+  }
+}
+
+export function getGameStateForPlaytest(game: IGame): IGameStateForPlaytest {
+  const player1 = game.players.find((player) => player.address === 'player1')
+  if (!player1) {
+    throw new Error(`unable to find player1`)
+  }
+
+  const player2 = game.players.find((player) => player.address === 'player2')
+  if (!player2) {
+    throw new Error(`unable to find player2`)
+  }
+
+  return {
+    player1: {
+      id: player1.id,
+      address: player1.address,
+      life: player1.life,
+      mana: player1.mana,
+      hand: player1.cards.filter((card) => card.location === CardLocation.HAND),
+      numberOfCardsInLibrary: player1.cards.filter((card) => card.location === CardLocation.LIBRARY)
+        .length,
+      battlefield: player1.cards.filter((card) => card.location === CardLocation.BATTLEFIELD),
+      graveyard: player1.cards.filter((card) => card.location === CardLocation.GRAVEYARD),
+      stack: player1.cards.filter((card) => card.location === CardLocation.STACK),
+      actions: player1.availableActions,
+    },
+    player2: {
+      id: player2.id,
+      address: player2.address,
+      life: player2.life,
+      mana: player2.mana,
+      hand: player2.cards.filter((card) => card.location === CardLocation.HAND),
+      numberOfCardsInLibrary: player2.cards.filter((card) => card.location === CardLocation.LIBRARY)
+        .length,
+      battlefield: player2.cards.filter((card) => card.location === CardLocation.BATTLEFIELD),
+      graveyard: player2.cards.filter((card) => card.location === CardLocation.GRAVEYARD),
+      stack: player2.cards.filter((card) => card.location === CardLocation.STACK),
+      actions: player2.availableActions,
     },
     metadata: game.metadata,
     turn: game.turn,

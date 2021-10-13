@@ -20,6 +20,56 @@ export enum IGameStatus {
   STARTED = 'STARTED',
 }
 
+export interface IGameStateForPlayer {
+  player: IPlayerForPlayer
+  opponent: IOpponentForPlayer
+
+  metadata: IGameMetadata
+  turn: number
+  phase: Phase
+  hasPriority: string
+  hasTurn: string
+  stack: IStackItem[]
+}
+
+export interface IGameStateForPlaytest {
+  player1: IPlayerForPlayer
+  player2: IPlayerForPlayer
+
+  metadata: IGameMetadata
+  turn: number
+  phase: Phase
+  hasPriority: string
+  hasTurn: string
+  stack: IStackItem[]
+}
+
+interface IPlayerForPlayer {
+  id: string
+  address: string
+  life: number
+  mana: number
+  hand: ICard[]
+  numberOfCardsInLibrary: number
+  battlefield: ICard[]
+  graveyard: ICard[]
+  stack: ICard[]
+  actions: IAction[]
+}
+
+interface IOpponentForPlayer {
+  id: string
+  address: string
+  life: number
+  mana: number
+  numberOfCardsInHand: number
+  numberOfCardsInLibrary: number
+  battlefield: ICard[]
+  graveyard: ICard[]
+  stack: ICard[]
+  actions: IAction[]
+}
+
 // GAME  DATA //
 export interface IGame {
   metadata: IGameMetadata
@@ -35,7 +85,9 @@ export interface IGame {
 export enum Phase {
   START = 'START',
   MAIN = 'MAIN',
-  COMBAT = 'COMBAT',
+  ATTACKERS = 'ATTACKERS',
+  BLOCKERS = 'BLOCKERS',
+  BATTLE = 'BATTLE',
   END = 'END',
 }
 
@@ -66,6 +118,7 @@ export interface IBaseCard {
 
   location: CardLocation
   tapped: boolean
+  attacking: boolean
   cost: ICostMana
   actions: IAction[]
 }
@@ -180,7 +233,11 @@ export enum EffectExecutionType {
 }
 
 export enum EffectType {
+  RELEASE_PRIORITY = 'RELEASE_PRIORITY',
+
   CAST = 'CAST',
+  DECLARE_ATTACK = 'DECLARE_ATTACK',
+  DECLARE_BLOCK = 'DECLARE_BLOCK',
 
   DAMAGE_ANY = 'DAMAGE_ANY',
   DAMAGE_PLAYER = 'DAMAGE_PLAYER',
@@ -191,14 +248,28 @@ export enum EffectType {
   PHASE_MAIN = 'PHASE_MAIN',
   PHASE_COMBAT = 'PHASE_COMBAT',
   PHASE_END = 'PHASE_END',
-
-  RELEASE_PRIORITY = 'RELEASE_PRIORITY',
 }
 
 export interface IEffectCast extends IBaseEffect {
   executionType: EffectExecutionType.RESPONDABLE
   type: EffectType.CAST
 }
+
+export interface IEffectReleasePriority extends IBaseEffect {
+  executionType: EffectExecutionType.IMMEDIATE
+  type: EffectType.RELEASE_PRIORITY
+}
+
+export interface IEffectDeclareAttack extends IBaseEffect {
+  executionType: EffectExecutionType.IMMEDIATE
+  type: EffectType.DECLARE_ATTACK
+}
+
+export interface IEffectDeclareBlock extends IBaseEffect {
+  executionType: EffectExecutionType.IMMEDIATE
+  type: EffectType.DECLARE_BLOCK
+}
+
 export interface IEffectDamageAny extends IBaseEffect {
   executionType: EffectExecutionType.RESPONDABLE
   type: EffectType.DAMAGE_ANY
@@ -209,12 +280,6 @@ export interface IEffectDamagePlayer extends IBaseEffect {
   executionType: EffectExecutionType.RESPONDABLE
   type: EffectType.DAMAGE_PLAYER
   target: Target.PLAYER
-}
-
-// this mutates the games priorityPlayerId
-export interface IEffectReleasePriority extends IBaseEffect {
-  executionType: EffectExecutionType.IMMEDIATE
-  type: EffectType.RELEASE_PRIORITY
 }
 
 export interface IEffectPhaseStart extends IBaseEffect {
@@ -238,10 +303,12 @@ export interface IEffectPhaseEnd extends IBaseEffect {
 }
 
 export type IEffect =
+  | IEffectReleasePriority
   | IEffectCast
+  | IEffectDeclareAttack
+  | IEffectDeclareBlock
   | IEffectDamageAny
   | IEffectDamagePlayer
-  | IEffectReleasePriority
   | IEffectPhaseStart
   | IEffectPhaseMain
   | IEffectPhaseCombat
@@ -263,6 +330,8 @@ export enum EffectItemType {
   TARGETS_PLAYER = 'TARGETS_PLAYER',
   TARGETS_CARD = 'TARGETS_CARD',
   WITH_AMOUNT = 'WITH_AMOUNT',
+  DECLARE_ATTACK = 'DECLARE_ATTACK',
+  DECLARE_BLOCK = 'DECLARE_BLOCK',
 }
 export interface IEffectItemCore extends IBaseEffectItem {
   type: EffectItemType.CORE
@@ -270,6 +339,16 @@ export interface IEffectItemCore extends IBaseEffectItem {
 
 export interface IEffectItemCast extends IBaseEffectItem {
   type: EffectItemType.CAST
+  cardId: string
+}
+
+export interface IEffectItemDeclareAttack extends IBaseEffectItem {
+  type: EffectItemType.DECLARE_ATTACK
+  cardId: string
+}
+
+export interface IEffectItemDeclareBlock extends IBaseEffectItem {
+  type: EffectItemType.DECLARE_BLOCK
   cardId: string
 }
 
@@ -294,6 +373,8 @@ export type IEffectItem =
   | IEffectItemTargetsPlayer
   | IEffectItemTargetsCard
   | IEffectItemWithAmount
+  | IEffectItemDeclareAttack
+  | IEffectItemDeclareBlock
 
 // EFFECT CREATORS
 
@@ -328,7 +409,8 @@ export interface IBaseAction {
 
 export enum ActionType {
   CAST_ACTION = 'CAST_ACTION',
-  COMBAT_ACTION = 'COMBAT_ACTION',
+  ATTACK_ACTION = 'ATTACK_ACTION',
+  BLOCK_ACTION = 'BLOCK_ACTION',
   ABILITY_ACTION = 'ABILITY_ACTION',
   EFFECT_ACTION = 'EFFECT_ACTION',
   PRIORITY_ACTION = 'PRIORITY_ACTION',
@@ -339,9 +421,15 @@ export interface ICastAction extends IBaseAction {
   cardId: string
 }
 
-export interface ICombatAction extends IBaseAction {
-  type: ActionType.COMBAT_ACTION
+export interface IAttackAction extends IBaseAction {
+  type: ActionType.ATTACK_ACTION
   cardId: string
+}
+
+export interface IBlockAction extends IBaseAction {
+  type: ActionType.BLOCK_ACTION
+  cardId: string
+  attackingCardId: string
 }
 
 export interface IAbilityAction extends IBaseAction {
@@ -358,7 +446,13 @@ export interface IPriorityAction extends IBaseAction {
   type: ActionType.PRIORITY_ACTION
 }
 
-export type IAction = ICastAction | ICombatAction | IAbilityAction | IEffectAction | IPriorityAction
+export type IAction =
+  | ICastAction
+  | IAttackAction
+  | IBlockAction
+  | IAbilityAction
+  | IEffectAction
+  | IPriorityAction
 
 // STACK
 

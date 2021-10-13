@@ -281,6 +281,7 @@ function getCard(cardData: ICardData): ICard {
 
         location: CardLocation.LIBRARY,
         tapped: false,
+        attacking: false,
         cost: cost,
         actions: [],
       }
@@ -295,6 +296,7 @@ function getCard(cardData: ICardData): ICard {
 
         location: CardLocation.LIBRARY,
         tapped: false,
+        attacking: false,
         cost: cost,
         actions: [],
       }
@@ -309,6 +311,7 @@ function getCard(cardData: ICardData): ICard {
 
         location: CardLocation.LIBRARY,
         tapped: false,
+        attacking: false,
         cost: cost,
         actions: [],
       }
@@ -323,6 +326,7 @@ function getCard(cardData: ICardData): ICard {
 
         location: CardLocation.LIBRARY,
         tapped: false,
+        attacking: false,
         cost: cost,
         actions: [],
       }

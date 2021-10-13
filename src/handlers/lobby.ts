@@ -25,17 +25,17 @@ export function registerLobbyHandlers(io: Server, socket: Socket): void {
   socket.on('lobby:game:create', ({ address }: ILobbyGameCreate) => {
     console.log('lobby:game:create', { address })
 
-    const existingGames = Object.entries(store.lobby.games)
-      .map(([, game]) => game)
-      .filter((game) => game.players.map((player) => player.address).includes(address))
-    if (existingGames.length > 0) {
-      console.warn(`address cannot create another game: ${address}`)
-      return
-    }
+    // const existingGames = Object.entries(store.lobby)
+    //   .map(([, game]) => game)
+    //   .filter((game) => game.players.map((player) => player.address).includes(address))
+    // if (existingGames.length > 0) {
+    //   console.warn(`address cannot create another game: ${address}`)
+    //   return
+    // }
 
     const gameId = uuidv4()
 
-    store.lobby.games[gameId] = {
+    store.lobby[gameId] = {
       id: gameId,
       status: IGameStatus.NOT_STARTED,
       players: [
@@ -55,7 +55,7 @@ export function registerLobbyHandlers(io: Server, socket: Socket): void {
   socket.on('lobby:game:join', ({ address, gameId }: ILobbyGameJoin) => {
     console.log('lobby:game:join', { address, gameId })
 
-    const game = store.lobby.games[gameId]
+    const game = store.lobby[gameId]
     if (!game) {
       console.warn(`game not found: ${gameId}`)
       return
@@ -71,8 +71,8 @@ export function registerLobbyHandlers(io: Server, socket: Socket): void {
       return
     }
 
-    store.lobby.games[gameId].status = IGameStatus.PLAYERS_JOINED
-    store.lobby.games[gameId].players.push({
+    store.lobby[gameId].status = IGameStatus.PLAYERS_JOINED
+    store.lobby[gameId].players.push({
       address: address,
       status: IPlayerStatus.JOINED,
       deckId: null,
@@ -88,7 +88,7 @@ export function registerLobbyHandlers(io: Server, socket: Socket): void {
   socket.on('lobby:game:ready', async ({ address, gameId, deckId }: ILobbyGameReady) => {
     console.log('lobby:game:ready', { address, gameId, deckId })
 
-    const game = store.lobby.games[gameId]
+    const game = store.lobby[gameId]
     if (!game) {
       console.warn(`game not found: ${gameId}`)
       return
@@ -110,7 +110,7 @@ export function registerLobbyHandlers(io: Server, socket: Socket): void {
     }
 
     // update status and deckId
-    store.lobby.games[gameId].players.forEach((player) => {
+    store.lobby[gameId].players.forEach((player) => {
       if (player.address === address) {
         player.status = IPlayerStatus.READY
         player.deckId = deckId
@@ -119,11 +119,11 @@ export function registerLobbyHandlers(io: Server, socket: Socket): void {
 
     // now if both players are ready, start the game!
     if (
-      store.lobby.games[gameId].players.filter((player) => player.status === IPlayerStatus.READY)
+      store.lobby[gameId].players.filter((player) => player.status === IPlayerStatus.READY)
         .length === 2
     ) {
       // create game
-      store.games[gameId] = await createGame(store.lobby.games[gameId])
+      store.games[gameId] = await createGame(store.lobby[gameId])
 
       // emit game:start event to each player
       store.games[gameId].players.forEach((player) => {

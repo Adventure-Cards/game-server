@@ -62,8 +62,56 @@ export function updateAvailableActionsForPlayers(initialGame: IGame): IGame {
 function getActionsForCard(game: IGame, player: IPlayer, card: ICard) {
   const actions: IAction[] = []
 
-  // handle casting ability
-  if (game.phase === Phase.MAIN && card.location === CardLocation.HAND && game.stack.length === 0) {
+  // get opponent
+  const opponent = game.players.find((_player) => _player.id !== player.id)
+  if (!opponent) {
+    throw new Error(`unable to find opponent for card: ${card.id}`)
+  }
+
+  // handle spell cast action
+  if (
+    card.type === CardType.SPELL &&
+    card.location === CardLocation.HAND &&
+    game.hasPriority === player.id
+  ) {
+    const castCostItem: ICostItem = {
+      target: Target.PLAYER,
+      playerId: player.id,
+      cost: card.cost,
+    }
+    if (validateCostItem(game, castCostItem)) {
+      actions.push({
+        type: ActionType.CAST_ACTION,
+        cardId: card.id,
+        controllerId: player.id,
+        costItems: [castCostItem],
+        effectItems: [
+          {
+            type: EffectItemType.CAST,
+            controllerId: player.id,
+            effect: {
+              executionType: EffectExecutionType.RESPONDABLE,
+              type: EffectType.CAST,
+            },
+            cardId: card.id,
+          },
+        ],
+      })
+    }
+  }
+
+  // if its a spell, casting is the only possible action, so can return early
+  if (card.type === CardType.SPELL) {
+    return actions
+  }
+
+  // handle permanent cast action
+  if (
+    game.hasTurn === player.id &&
+    game.hasPriority === player.id &&
+    card.location === CardLocation.HAND &&
+    game.phase === Phase.MAIN
+  ) {
     const castCostItem: ICostItem = {
       target: Target.PLAYER,
       playerId: player.id,
@@ -91,11 +139,7 @@ function getActionsForCard(game: IGame, player: IPlayer, card: ICard) {
     }
   }
 
-  if (card.type === CardType.SPELL) {
-    return actions
-  }
-
-  // handle activated abilities
+  // handle permanent activated ability actions
   for (const ability of card.abilities) {
     // validate card is on battlefield
     if (card.location !== CardLocation.BATTLEFIELD) {
@@ -183,45 +227,74 @@ function getActionsForCard(game: IGame, player: IPlayer, card: ICard) {
     })
   }
 
-  // handle combat ability
+  // handle attack action
   if (
     card.type === CardType.CREATURE &&
-    game.hasPriority === player.id &&
-    game.phase === Phase.COMBAT
+    card.location === CardLocation.BATTLEFIELD &&
+    game.phase === Phase.ATTACKERS &&
+    player.id === game.hasTurn
   ) {
-    const combatCostItem: ICostItem = {
+    const attackCostItem: ICostItem = {
       cost: { target: Target.CARD, type: CostType.TAP },
       target: Target.CARD,
       cardId: card.id,
     }
 
-    if (validateCostItem(game, combatCostItem)) {
+    if (validateCostItem(game, attackCostItem)) {
       actions.push({
-        type: ActionType.COMBAT_ACTION,
+        type: ActionType.ATTACK_ACTION,
         cardId: card.id,
         controllerId: player.id,
-        costItems: [combatCostItem],
+        costItems: [attackCostItem],
         effectItems: [
           {
-            type: EffectItemType.WITH_AMOUNT,
+            type: EffectItemType.DECLARE_ATTACK,
             controllerId: player.id,
+            cardId: card.id,
             effect: {
-              executionType: EffectExecutionType.RESPONDABLE,
-              type: EffectType.DAMAGE_PLAYER,
+              executionType: EffectExecutionType.IMMEDIATE,
+              type: EffectType.DECLARE_ATTACK,
               target: Target.PLAYER,
             },
-            amount: card.attack,
           },
         ],
       })
     }
   }
 
+  // // handle block action
+  // if (
+  //   card.type === CardType.CREATURE &&
+  //   card.location === CardLocation.BATTLEFIELD &&
+  //   game.phase === Phase.BLOCKERS &&
+  //   player.id !== game.hasTurn
+  // ) {
+  //   actions.push({
+  //     type: ActionType.BLOCK_ACTION,
+  //     cardId: card.id,
+  //     controllerId: player.id,
+  //     costItems: [],
+  //     effectItems: [
+  //       {
+  //         type: EffectItemType.DECLARE_BLOCK,
+  //         controllerId: player.id,
+  //         effect: {
+  //           executionType: EffectExecutionType.IMMEDIATE,
+  //           type: EffectType.DECLARE_BLOCK,
+  //           target: Target.PLAYER,
+  //         },
+  //       },
+  //     ],
+  //   })
+  // }
+
   return actions
 }
 
 export function submitAction(initialGame: IGame, action: IAction): IGame {
   let game = { ...initialGame }
+
+  console.log('received action: ', action)
 
   // get the player object who submitted the action
   const player = game.players.find((player) => player.id === action.controllerId)
@@ -249,6 +322,7 @@ export function submitAction(initialGame: IGame, action: IAction): IGame {
   for (const effectItem of action.effectItems) {
     switch (effectItem.effect.executionType) {
       case EffectExecutionType.IMMEDIATE:
+        console.log('processing effectItem immediately: ', effectItem)
         game = processEffectItem(game, effectItem)
         break
       case EffectExecutionType.RESPONDABLE: {
