@@ -12,8 +12,12 @@ import {
   IEffectItemCore,
 } from './types'
 
-import { updateAvailableActionsForPlayers } from './actions'
-import { drawCard } from './utils'
+import { updateActions } from './actions/update'
+import { drawCard } from './utils/helpers'
+
+export function validateEffectItem(game: IGame, effectItem: IEffectItem): boolean {
+  return true
+}
 
 export function processEffectItem(initialGame: IGame, effectItem: IEffectItem): IGame {
   let game = { ...initialGame }
@@ -30,9 +34,6 @@ export function processEffectItem(initialGame: IGame, effectItem: IEffectItem): 
     case EffectItemType.CAST:
       game = processEffectItemCast(game, player, effectItem)
       break
-    // case EffectItemType.WITH_AMOUNT:
-    //   game = processEffectWithAmount(game, effectItem.effect, effectItem.amount)
-    //   break
     case EffectItemType.DECLARE_ATTACK:
       game = processEffectItemDeclareAttack(game, player, effectItem)
       break
@@ -42,7 +43,7 @@ export function processEffectItem(initialGame: IGame, effectItem: IEffectItem): 
 
   // after processing an effect, need to refresh the available actions
   // for each player, because the game state has changed
-  game = updateAvailableActionsForPlayers(game)
+  game = updateActions(game)
 
   return game
 }
@@ -101,27 +102,6 @@ function processEffectCore(
 
   return game
 }
-
-// function processEffectWithAmount(initialGame: IGame, effect: IEffect, amount: number): IGame {
-//   const game = { ...initialGame }
-
-//   switch (effect.type) {
-//     case EffectType.DAMAGE_ANY:
-//       game.players = game.players.map((player) =>
-//         player.address === 'opponent' ? { ...player, life: player.life - amount } : { ...player }
-//       )
-//       break
-//     case EffectType.DAMAGE_PLAYER:
-//       game.players = game.players.map((player) =>
-//         player.address === 'opponent' ? { ...player, life: player.life - amount } : { ...player }
-//       )
-//       break
-//     default:
-//       throw new Error(`unhandled EffectType: ${effect.type}`)
-//   }
-
-//   return game
-// }
 
 function processEffectItemCast(
   initialGame: IGame,

@@ -1,4 +1,4 @@
-import { IGame, CardLocation } from './types'
+import { IGame, CardLocation } from '../types'
 
 export function moveCardToStack(initialGame: IGame, cardId: string): IGame {
   const game = { ...initialGame }

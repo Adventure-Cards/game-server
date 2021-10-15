@@ -2,9 +2,9 @@ import { Server, Socket } from 'socket.io'
 import { v4 as uuidv4 } from 'uuid'
 
 import { store } from '../lib/store'
-import { IPlayerStatus, IGameStatus } from '../lib/game/types'
 
-import { createGame, getGameStateForPlayer } from '../lib/game/index'
+import { createGame, getGameStateForPlayer } from '../game/index'
+import { IPlayerStatus, IGameStatus } from '../game/types'
 
 interface ILobbyGameCreate {
   address: string

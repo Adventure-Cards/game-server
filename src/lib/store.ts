@@ -1,4 +1,4 @@
-import type { IGameMetadata, IGame } from './game/types'
+import type { IGameMetadata, IGame } from '../game/types'
 
 export interface IStore {
   lobby: { [gameId: string]: IGameMetadata }

@@ -2,29 +2,23 @@ import { v4 as uuidv4 } from 'uuid'
 
 import { IGameMetadata, IGame, Phase, IPlayer, CardLocation } from './types'
 
-import { updateAvailableActionsForPlayers } from './actions'
-import { shuffle, randomIntFromInterval } from './utils'
-import { getDeck } from './decks'
+import { updateActions } from './actions/update'
+import { shuffle, randomIntFromInterval } from './utils/helpers'
+import { generateDeck } from './utils/generateDeck'
 
 export async function createGame(metadata: IGameMetadata): Promise<IGame> {
-  // get and populate decks
-
   const players = await Promise.all(
     metadata.players.map(async (playerMetadata) => {
       const { address, deckId } = playerMetadata
-
-      console.log('processing data for player:', { address, deckId })
 
       if (!deckId) {
         throw new Error(`no deckId for player with address: ${address}`)
       }
 
-      const deck = await getDeck(deckId)
+      const deck = await generateDeck(deckId)
       if (!deck) {
         throw new Error(`couldn't find deck for deckId: ${deckId}`)
       }
-
-      console.log('got deck with id:', deck.id)
 
       const cards = [...deck.cards]
       shuffle(cards)
@@ -58,7 +52,7 @@ export async function createGame(metadata: IGameMetadata): Promise<IGame> {
     turn: 1,
   }
 
-  game = updateAvailableActionsForPlayers(game)
+  game = updateActions(game)
 
   return game
 }

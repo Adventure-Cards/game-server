@@ -1,8 +1,9 @@
 import { Server, Socket } from 'socket.io'
 
 import { store } from '../lib/store'
-import { submitAction } from '../lib/game'
-import { IAction } from '../lib/game/types'
+
+import { submitAction } from '../game'
+import { IAction } from '../game/types'
 
 interface IGameJoin {
   gameId: string

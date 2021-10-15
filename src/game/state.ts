@@ -1,4 +1,4 @@
-import { IGameStateForPlayer, IGame, CardLocation, IGameStateForPlaytest } from './types'
+import { IGame, CardLocation, IGameStateForPlayer, IGameStateForPlaytest } from './types'
 
 export function getGameStateForPlayer(game: IGame, address: string): IGameStateForPlayer {
   const player = game.players.find((player) => player.address === address)

@@ -1,8 +1,10 @@
-import express from 'express'
 import http from 'http'
+import express from 'express'
 
 import { loggerMiddleware, corsMiddleware } from '../lib/middleware'
-import { createWebsocketServer, registerEventHandlers } from './sockets'
+
+import { createWebsocketServer, registerEventHandlers } from './socket'
+import { createGqlServer } from './apollo'
 
 export async function createServer(): Promise<http.Server> {
   const app = express()
@@ -23,9 +25,13 @@ export async function createServer(): Promise<http.Server> {
 
   const server = http.createServer(app)
 
+  // attach websockets server
   const io = createWebsocketServer(server)
-
   registerEventHandlers(io)
+
+  // attack gql server
+  const gqlServer = await createGqlServer(server)
+  gqlServer.applyMiddleware({ app: app, path: '/graphql' })
 
   return server
 }

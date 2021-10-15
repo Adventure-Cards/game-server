@@ -2,10 +2,9 @@ import { Server, Socket } from 'socket.io'
 import { v4 as uuidv4 } from 'uuid'
 
 import { store } from '../lib/store'
-import { createGame, getGameStateForPlaytest } from '../lib/game/index'
-import { submitAction } from '../lib/game'
 
-import { IPlayerStatus, IGameStatus, IAction } from '../lib/game/types'
+import { createGame, submitAction, getGameStateForPlaytest } from '../game'
+import { IPlayerStatus, IGameStatus, IAction } from '../game/types'
 
 interface IPlaytestGameCreate {
   deckId1: number
@@ -16,7 +15,7 @@ interface IPlaytestGameJoin {
   gameId: string
 }
 
-interface IGameSubmitAction {
+interface IPlaytestSubmitAction {
   gameId: string
   action: IAction
 }
@@ -62,7 +61,7 @@ export function registerPlaytestHandlers(io: Server, socket: Socket): void {
     socket.join(`playtest-${gameId}`)
   })
 
-  socket.on('playtest:game:action:submit', ({ gameId, action }: IGameSubmitAction) => {
+  socket.on('playtest:game:action:submit', ({ gameId, action }: IPlaytestSubmitAction) => {
     console.log('game:action:submit', { gameId, action })
 
     // validate priority, turn, etc
