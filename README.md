@@ -1,14 +1,4 @@
-## game-server-v0
-
-An experimental game server for Adventure Cards
-
-Terminology:
-active player -> player whose turn it is
-inactive player -> player whose turn it isn't
-priority -> the ability to take the next game action
-permanent -> card that is placed onto the battlefield when played
-spell -> card that is played onto the graveyard when played
-mana -> the resource used to play cards
+## Adventure Cards - Offchain Game Engine
 
 ### Turns, Phases, and the Core Rules
 
@@ -88,7 +78,7 @@ A quick note about "priority": Passing priority is just like tapping the chess t
     No player has priority
     The phase ends
 
-## Game Engine Explained
+### Game Engine Explained
 
 The game engine is built on a small number of core concepts. If you've made it this far, you've already covered the trickiest one (priority).
 
@@ -98,9 +88,9 @@ The game engine is built on a small number of core concepts. If you've made it t
 4. Handlers
 5. (bonus) The Stack
 
-## Costs & Effects
+### Costs & Effects
 
-Costs and Effects are the core data structures of the game. When processed, both Costs and Effects update the game state. In fact, Costs and Effects are the <em>only</em> way that the game state gets updated.
+Costs and Effects are the core data structures of the game. When processed, both Costs and Effects update the game state. In fact, Costs and Effects are the _only_ way that the game state gets updated.
 
 Here are a few sample Costs. Only the name and type fields are required for all Costs - the remaining fields are specific to the type field.
 
@@ -151,13 +141,13 @@ Deal X damage to target creature.
 
 Effects also have another special field: ExecutionType, which is either
 
-## CostItems and EffectItems
+### CostItems and EffectItems
 
-Costs and Effects are <em>static data<em> - templates to be implemented. Before they are ready to be sent to the game engine, they must be packaged up into CostItems and EffectItems. In programming terms, you can think of a Cost as a class, and a CostItem as an instance of that class. In most cases, a CostItem/EffectItem will also include a number of arguments that are required to actually process that Cost/Effect.
+Costs and Effects are _static data_ - templates to be implemented. Before they are ready to be sent to the game engine, they must be packaged up into CostItems and EffectItems. In programming terms, you can think of a Cost as a class, and a CostItem as an instance of that class. In most cases, a CostItem/EffectItem will also include a number of arguments that are required to actually process that Cost/Effect.
 
 As an example, consider the "tap" Cost above. How does the game engine know which card to tap while processing that Cost? Well, the CostItem for the "tap" Cost requires an argument: "cardId".
 
-## Actions & Triggers
+### Actions & Triggers
 
 Actions and Triggers are how CostItems and EffectItems get created and sent to the game engine for processing. Actions can have CostItems and EffectItems, while Triggers only have EffectItems.
 
@@ -180,10 +170,19 @@ Some triggers are not associated with a specific card, but are registered by the
 - on: [ PHASE_START ]
 - effectItems [ active_player_untaps_permanents(), active_player_draws_card() ]
 
-## Handlers
+### Handlers
 
-For every type of Cost and Effect, the game engine must implement a handler. These handlers are the <em>only<em> place where the game state actually gets updated.
+For every type of Cost and Effect, the game engine must implement a handler. These handlers are the _only_ place where the game state actually gets updated.
 
-## Abilities
+### Abilities
 
 "Ability" refers to a specific type of Action/Trigger that is associated with a permanent. Abilities are only available to the player when that permanent is on the battlefield. There are both ActionAbilities and TriggerAbilities - these serve as a light wrapper around Action and Trigger.
+
+### Terminology
+
+- active player -> player whose turn it is
+- inactive player -> player whose turn it isn't
+- priority -> the ability to take the next game action
+- permanent -> card that is placed onto the battlefield when played
+- spell -> card that is played onto the graveyard when played
+- mana -> the resource used to play cards
