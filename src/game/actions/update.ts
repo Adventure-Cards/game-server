@@ -16,6 +16,7 @@ import {
   IEffectItemCast,
   IEffectItemDeclareAttack,
   EffectExecutionType,
+  IEffectItemDeclareBlock,
 } from '../types'
 
 // import { validateEffectItem } from '../effects'
@@ -193,14 +194,14 @@ function getActionsForCard(game: IGame, player: IPlayer, card: ICard) {
     // prepare and submit effect items
     const effectItems: IEffectItem[] = []
 
-    for (const _effect of ability.effects) {
-      const effect = { ..._effect }
+    // for (const _effect of ability.effects) {
+    //   const effect = { ..._effect }
 
-      switch (effect.type) {
-        default:
-          throw new Error(`unhandled EffectType: ${effect.type}`)
-      }
-    }
+    //   switch (effect.type) {
+    //     default:
+    //       throw new Error(`unhandled EffectType: ${effect.type}`)
+    //   }
+    // }
 
     actions.push({
       type: ActionType.ABILITY_ACTION,
@@ -246,31 +247,39 @@ function getActionsForCard(game: IGame, player: IPlayer, card: ICard) {
     }
   }
 
-  // // handle block action
-  // if (
-  //   card.type === CardType.CREATURE &&
-  //   card.location === CardLocation.BATTLEFIELD &&
-  //   game.phase === Phase.BLOCKERS &&
-  //   player.id !== game.hasTurn
-  // ) {
-  //   actions.push({
-  //     type: ActionType.BLOCK_ACTION,
-  //     cardId: card.id,
-  //     controllerId: player.id,
-  //     costItems: [],
-  //     effectItems: [
-  //       {
-  //         type: EffectItemType.DECLARE_BLOCK,
-  //         controllerId: player.id,
-  //         effect: {
-  //           executionType: EffectExecutionType.IMMEDIATE,
-  //           type: EffectType.DECLARE_BLOCK,
-  //           target: Target.PLAYER,
-  //         },
-  //       },
-  //     ],
-  //   })
-  // }
+  // handle block action
+  if (
+    card.type === CardType.CREATURE &&
+    card.location === CardLocation.BATTLEFIELD &&
+    card.tapped === false &&
+    game.phase === Phase.BLOCKERS &&
+    player.id !== game.hasTurn
+  ) {
+    const activeAttackCards = game.players
+      .map((player) => player.cards)
+      .flat()
+      .filter((card) => card.activeAttack !== null)
+
+    for (const activeAttackCard of activeAttackCards) {
+      const blockEffectItem: IEffectItemDeclareBlock = {
+        type: EffectItemType.DECLARE_BLOCK,
+        executionType: EffectExecutionType.IMMEDIATE,
+        controllerId: player.id,
+        arguments: {
+          blockingCardId: card.id,
+          attackingCardId: activeAttackCard.id,
+        },
+      }
+
+      actions.push({
+        type: ActionType.BLOCK_ACTION,
+        cardId: card.id,
+        controllerId: player.id,
+        costItems: [],
+        effectItems: [blockEffectItem],
+      })
+    }
+  }
 
   return actions
 }

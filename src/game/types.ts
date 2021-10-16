@@ -419,7 +419,6 @@ export interface IAttackAction extends IBaseAction {
 export interface IBlockAction extends IBaseAction {
   type: ActionType.BLOCK_ACTION
   cardId: string
-  attackingCardId: string
 }
 
 export interface IAbilityAction extends IBaseAction {

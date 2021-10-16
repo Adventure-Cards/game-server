@@ -1,7 +1,7 @@
 import { IGame, Phase, IEffectItem, EffectItemType, CardLocation, CardType } from '../types'
 
 import { updateActions } from '../actions/update'
-import { drawCard } from '../utils/helpers'
+import { drawCard, processCombatDamage } from '../utils/helpers'
 
 export function processEffectItem(initialGame: IGame, effectItem: IEffectItem): IGame {
   let game = { ...initialGame }
@@ -20,7 +20,7 @@ export function processEffectItem(initialGame: IGame, effectItem: IEffectItem): 
         throw new Error(`unable to find active/inactive players`)
       }
 
-      // if this RELEASE_PRIORITY action was submitted by the active player,
+      // if this PASS_PRIORITY action was submitted by the active player,
       //   if we're in the MAIN or BATTLE phases
       //     pass priority to the inactive player
       //   if we're in any other phase
@@ -34,7 +34,7 @@ export function processEffectItem(initialGame: IGame, effectItem: IEffectItem): 
         break
       }
 
-      // if this RELEASE_PRIORITY action was submitted by the inactive player,
+      // if this PASS_PRIORITY action was submitted by the inactive player,
       //   if there's something on the stack,
       //     process an item from the stack and pass priority back to active player
       //   if there's nothing on the stack,
@@ -45,6 +45,9 @@ export function processEffectItem(initialGame: IGame, effectItem: IEffectItem): 
           game = processEffectItem(game, stackItem.effectItem)
           game.hasPriority = activePlayer.id
         } else {
+          if (game.phase === Phase.BATTLE) {
+            game = processCombatDamage(game)
+          }
           game = advancePhase(game)
         }
         break

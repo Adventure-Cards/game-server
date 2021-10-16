@@ -1,4 +1,54 @@
-import { IGame, CardLocation } from '../types'
+import { IGame, CardType, CardLocation } from '../types'
+
+export function processCombatDamage(initialGame: IGame): IGame {
+  const game = { ...initialGame }
+
+  const activeAttackCards = game.players
+    .map((player) => player.cards)
+    .flat()
+    .filter((card) => card.activeAttack !== null)
+
+  const activeBlockCards = game.players
+    .map((player) => player.cards)
+    .flat()
+    .filter((card) => card.activeBlock !== null)
+
+  for (const activeAttackCard of activeAttackCards) {
+    // get defending player
+    const defendingPlayer = game.players.find(
+      (player) => player.id === activeAttackCard.activeAttack?.defendingPlayerId
+    )
+    if (!defendingPlayer) {
+      throw new Error(`unable to find defendingPlayer`)
+    }
+
+    // find corresponding blocks
+    // TODO sort by "blockIndex"
+    const blockers = activeBlockCards.filter(
+      (card) => card.activeBlock?.attackingCardId === activeAttackCard.id
+    )
+
+    let remainingDamage = activeAttackCard.type === CardType.CREATURE ? activeAttackCard.attack : 0
+
+    for (const blocker of blockers) {
+      const blockerDefense = blocker.type == CardType.CREATURE ? blocker.defense : 0
+
+      if (remainingDamage >= blockerDefense) {
+        // blocker dies!
+        blocker.location === CardLocation.GRAVEYARD
+      }
+
+      remainingDamage -= blockerDefense
+    }
+
+    defendingPlayer.life -= Math.max(remainingDamage, 0)
+
+    // remove activeAttack
+    activeAttackCard.activeAttack = null
+  }
+
+  return game
+}
 
 export function moveCardToStack(initialGame: IGame, cardId: string): IGame {
   const game = { ...initialGame }
