@@ -1,7 +1,9 @@
 import { IGame, IAction, ActionType, EffectExecutionType } from '../types'
 
-import { validateEffectItem, processEffectItem } from '../effects'
-import { validateCostItem, processCostItem } from '../costs'
+import { validateEffectItem } from '../effects/validate'
+import { processEffectItem } from '../effects/process'
+import { validateCostItem } from '../costs/validate'
+import { processCostItem } from '../costs/process'
 
 import { updateActions } from './update'
 import { moveCardToStack } from '../utils/helpers'
@@ -46,9 +48,8 @@ export function submitAction(initialGame: IGame, action: IAction): IGame {
 
   // handle effects based on execution type
   for (const effectItem of action.effectItems) {
-    switch (effectItem.effect.executionType) {
+    switch (effectItem.executionType) {
       case EffectExecutionType.IMMEDIATE:
-        console.log('processing effectItem immediately: ', effectItem)
         game = processEffectItem(game, effectItem)
         break
       case EffectExecutionType.RESPONDABLE: {

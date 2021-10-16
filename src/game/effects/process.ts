@@ -1,23 +1,7 @@
-import {
-  IGame,
-  IPlayer,
-  Phase,
-  IEffectItem,
-  EffectType,
-  EffectItemType,
-  CardLocation,
-  CardType,
-  IEffectItemCast,
-  IEffectItemDeclareAttack,
-  IEffectItemCore,
-} from './types'
+import { IGame, Phase, IEffectItem, EffectItemType, CardLocation, CardType } from '../types'
 
-import { updateActions } from './actions/update'
-import { drawCard } from './utils/helpers'
-
-export function validateEffectItem(game: IGame, effectItem: IEffectItem): boolean {
-  return true
-}
+import { updateActions } from '../actions/update'
+import { drawCard } from '../utils/helpers'
 
 export function processEffectItem(initialGame: IGame, effectItem: IEffectItem): IGame {
   let game = { ...initialGame }
@@ -28,35 +12,7 @@ export function processEffectItem(initialGame: IGame, effectItem: IEffectItem): 
   }
 
   switch (effectItem.type) {
-    case EffectItemType.CORE:
-      game = processEffectCore(game, player, effectItem)
-      break
-    case EffectItemType.CAST:
-      game = processEffectItemCast(game, player, effectItem)
-      break
-    case EffectItemType.DECLARE_ATTACK:
-      game = processEffectItemDeclareAttack(game, player, effectItem)
-      break
-    default:
-      throw new Error(`unhandled EffectItemType: ${effectItem.type}`)
-  }
-
-  // after processing an effect, need to refresh the available actions
-  // for each player, because the game state has changed
-  game = updateActions(game)
-
-  return game
-}
-
-function processEffectCore(
-  initialGame: IGame,
-  player: IPlayer,
-  effectItem: IEffectItemCore
-): IGame {
-  let game = { ...initialGame }
-
-  switch (effectItem.effect.type) {
-    case EffectType.RELEASE_PRIORITY: {
+    case EffectItemType.PASS_PRIORITY: {
       // first get the active and inactive players
       const activePlayer = game.players.find((player) => player.id === game.hasTurn)
       const inactivePlayer = game.players.find((player) => player.id !== game.hasTurn)
@@ -94,82 +50,77 @@ function processEffectCore(
         break
       }
 
-      throw new Error(`not able to assign RELEASE_PRIORITY action to any player`)
+      throw new Error(`not able to assign PASS_PRIORITY action to any player`)
     }
-    default:
-      throw new Error(`unhandled EffectType: ${effectItem.effect.type}`)
-  }
+    case EffectItemType.CAST: {
+      const card = game.players
+        .map((player) => player.cards)
+        .flat()
+        .find((card) => card.id === effectItem.arguments.cardId)
 
-  return game
-}
+      if (!card) {
+        throw new Error(`no card found with id ${effectItem.arguments.cardId} while handling Cast`)
+      }
 
-function processEffectItemCast(
-  initialGame: IGame,
-  player: IPlayer,
-  effectItem: IEffectItemCast
-): IGame {
-  const game = { ...initialGame }
-
-  const card = game.players
-    .map((player) => player.cards)
-    .flat()
-    .find((card) => card.id === effectItem.cardId)
-
-  if (!card) {
-    throw new Error(`no card found with id ${effectItem.cardId} while handling Cast`)
-  }
-
-  switch (effectItem.effect.type) {
-    case EffectType.CAST:
       if (card.type === CardType.SPELL) {
         card.location = CardLocation.GRAVEYARD
         // how do we kick off spell effects?
         card.effects.forEach((effect) => {
+          // somehow create and process effectItems for each effect on the spell?
+          // or do spells new up effectItems in their ActionCast? <- this!!!
           // game = processEffectWithAmount(game, effect, 1)
         })
       } else {
         card.location = CardLocation.BATTLEFIELD
       }
+
       break
-    default:
-      throw new Error(`unhandled EffectType: ${effectItem.effect.type}`)
-  }
+    }
+    case EffectItemType.DECLARE_ATTACK: {
+      const attackingCard = game.players
+        .map((player) => player.cards)
+        .flat()
+        .find((card) => card.id === effectItem.arguments.attackingCardId)
 
-  return game
-}
+      if (!attackingCard) {
+        throw new Error(
+          `no card found with id ${effectItem.arguments.attackingCardId} while handling DeclareAttack`
+        )
+      }
 
-function processEffectItemDeclareAttack(
-  initialGame: IGame,
-  player: IPlayer,
-  effectItem: IEffectItemDeclareAttack
-): IGame {
-  const game = { ...initialGame }
+      attackingCard.activeAttack = {
+        attackingCardId: attackingCard.id,
+        defendingPlayerId: effectItem.arguments.defendingPlayerId,
+      }
 
-  console.log('processing EffectItemDeclareAttack')
-
-  const card = game.players
-    .map((player) => player.cards)
-    .flat()
-    .find((card) => card.id === effectItem.cardId)
-
-  if (!card) {
-    throw new Error(`no card found with id ${effectItem.cardId} while handling DeclareAttack`)
-  }
-
-  switch (effectItem.effect.type) {
-    case EffectType.DECLARE_ATTACK:
-      console.log('set card.attacking to true')
-      card.attacking = true
       break
+    }
+    case EffectItemType.DECLARE_BLOCK: {
+      const blockingCard = game.players
+        .map((player) => player.cards)
+        .flat()
+        .find((card) => card.id === effectItem.arguments.blockingCardId)
+
+      if (!blockingCard) {
+        throw new Error(
+          `no card found with id ${effectItem.arguments.blockingCardId} while handling DeclareBlock`
+        )
+      }
+
+      blockingCard.activeBlock = {
+        attackingCardId: effectItem.arguments.attackingCardId,
+        blockingCardId: blockingCard.id,
+      }
+
+      break
+    }
     default:
-      throw new Error(`unhandled EffectType: ${effectItem.effect.type}`)
+      throw new Error(`unhandled EffectItemType: ${effectItem}`)
   }
 
-  const foundCardAgain = game.players
-    .map((player) => player.cards)
-    .flat()
-    .find((card) => card.id === effectItem.cardId)
-  console.log('foundCardAgain: ', foundCardAgain)
+  // after processing an effect, need to refresh the available actions
+  // for each player, because the game state has changed
+  game = updateActions(game)
 
   return game
 }

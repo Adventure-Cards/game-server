@@ -53,6 +53,8 @@ export function generateCard(cardData: ICardData): ICard {
         attacking: false,
         cost: cost,
         actions: [],
+        activeAttack: null,
+        activeBlock: null,
       }
       break
     case 'ARTIFACT':
@@ -68,6 +70,8 @@ export function generateCard(cardData: ICardData): ICard {
         attacking: false,
         cost: cost,
         actions: [],
+        activeAttack: null,
+        activeBlock: null,
       }
       break
     case 'ENCHANTMENT':
@@ -83,6 +87,8 @@ export function generateCard(cardData: ICardData): ICard {
         attacking: false,
         cost: cost,
         actions: [],
+        activeAttack: null,
+        activeBlock: null,
       }
       break
     case 'SPELL':
@@ -98,6 +104,8 @@ export function generateCard(cardData: ICardData): ICard {
         attacking: false,
         cost: cost,
         actions: [],
+        activeAttack: null,
+        activeBlock: null,
       }
       break
     default:
@@ -189,7 +197,5 @@ function getEffect(effectId: string): IEffect {
   return {
     type: (<any>EffectType)[foundEffect.type],
     executionType: (<any>EffectExecutionType)[foundEffect.executionType],
-    target: (<any>Target)[foundEffect.target],
-    amount: Number(foundEffect.amount),
   }
 }

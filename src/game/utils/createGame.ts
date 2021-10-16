@@ -1,10 +1,10 @@
 import { v4 as uuidv4 } from 'uuid'
 
-import { IGameMetadata, IGame, Phase, IPlayer, CardLocation } from './types'
+import { IGameMetadata, IGame, Phase, IPlayer, CardLocation } from '../types'
 
-import { updateActions } from './actions/update'
-import { shuffle, randomIntFromInterval } from './utils/helpers'
-import { generateDeck } from './utils/generateDeck'
+import { updateActions } from '../actions/update'
+import { shuffle, randomIntFromInterval } from './helpers'
+import { generateDeck } from './generateDeck'
 
 export async function createGame(metadata: IGameMetadata): Promise<IGame> {
   const players = await Promise.all(

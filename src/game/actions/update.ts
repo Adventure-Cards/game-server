@@ -4,26 +4,27 @@ import {
   ICard,
   IAction,
   ActionType,
-  EffectType,
   Target,
   ICostItem,
   IEffectItem,
-  EffectExecutionType,
   AbilitySpeed,
   Phase,
   CardType,
   CostType,
   EffectItemType,
   CardLocation,
+  IEffectItemCast,
+  IEffectItemDeclareAttack,
+  EffectExecutionType,
 } from '../types'
 
 // import { validateEffectItem } from '../effects'
-import { validateCostItem } from '../costs'
+import { validateCostItem } from '../costs/validate'
 
 export function updateActions(initialGame: IGame): IGame {
   const game = { ...initialGame }
 
-  for (const [, player] of Object.entries(game.players)) {
+  for (const player of Object.values(game.players)) {
     let availableActions: IAction[] = []
 
     player.cards.forEach((card) => {
@@ -31,22 +32,19 @@ export function updateActions(initialGame: IGame): IGame {
     })
 
     if (game.hasPriority === player.id) {
-      const releasePriorityAction: IAction = {
+      const passPriorityAction: IAction = {
         type: ActionType.PRIORITY_ACTION,
         controllerId: player.id,
         costItems: [],
         effectItems: [
           {
-            type: EffectItemType.CORE,
+            type: EffectItemType.PASS_PRIORITY,
+            executionType: EffectExecutionType.IMMEDIATE,
             controllerId: player.id,
-            effect: {
-              type: EffectType.RELEASE_PRIORITY,
-              executionType: EffectExecutionType.IMMEDIATE,
-            },
           },
         ],
       }
-      availableActions = [...availableActions, releasePriorityAction]
+      availableActions = [...availableActions, passPriorityAction]
     }
 
     // add effect actions here (look at top effect on stack and see if belongs to player?)
@@ -77,23 +75,21 @@ function getActionsForCard(game: IGame, player: IPlayer, card: ICard) {
       playerId: player.id,
       cost: card.cost,
     }
+    const castEffectItem: IEffectItemCast = {
+      type: EffectItemType.CAST,
+      executionType: EffectExecutionType.RESPONDABLE,
+      controllerId: player.id,
+      arguments: {
+        cardId: card.id,
+      },
+    }
     if (validateCostItem(game, castCostItem)) {
       actions.push({
         type: ActionType.CAST_ACTION,
         cardId: card.id,
         controllerId: player.id,
         costItems: [castCostItem],
-        effectItems: [
-          {
-            type: EffectItemType.CAST,
-            controllerId: player.id,
-            effect: {
-              executionType: EffectExecutionType.RESPONDABLE,
-              type: EffectType.CAST,
-            },
-            cardId: card.id,
-          },
-        ],
+        effectItems: [castEffectItem],
       })
     }
   }
@@ -116,23 +112,22 @@ function getActionsForCard(game: IGame, player: IPlayer, card: ICard) {
       cost: card.cost,
     }
 
+    const castEffectItem: IEffectItemCast = {
+      type: EffectItemType.CAST,
+      executionType: EffectExecutionType.RESPONDABLE,
+      controllerId: player.id,
+      arguments: {
+        cardId: card.id,
+      },
+    }
+
     if (validateCostItem(game, castCostItem)) {
       actions.push({
         type: ActionType.CAST_ACTION,
         cardId: card.id,
         controllerId: player.id,
         costItems: [castCostItem],
-        effectItems: [
-          {
-            type: EffectItemType.CAST,
-            controllerId: player.id,
-            effect: {
-              executionType: EffectExecutionType.RESPONDABLE,
-              type: EffectType.CAST,
-            },
-            cardId: card.id,
-          },
-        ],
+        effectItems: [castEffectItem],
       })
     }
   }
@@ -202,14 +197,6 @@ function getActionsForCard(game: IGame, player: IPlayer, card: ICard) {
       const effect = { ..._effect }
 
       switch (effect.type) {
-        case EffectType.DAMAGE_ANY:
-          effectItems.push({
-            type: EffectItemType.WITH_AMOUNT,
-            controllerId: player.id,
-            effect: effect,
-            amount: 1,
-          })
-          break
         default:
           throw new Error(`unhandled EffectType: ${effect.type}`)
       }
@@ -238,24 +225,23 @@ function getActionsForCard(game: IGame, player: IPlayer, card: ICard) {
       cardId: card.id,
     }
 
+    const attackEffectItem: IEffectItemDeclareAttack = {
+      type: EffectItemType.DECLARE_ATTACK,
+      executionType: EffectExecutionType.IMMEDIATE,
+      controllerId: player.id,
+      arguments: {
+        attackingCardId: card.id,
+        defendingPlayerId: opponent.id,
+      },
+    }
+
     if (validateCostItem(game, attackCostItem)) {
       actions.push({
         type: ActionType.ATTACK_ACTION,
         cardId: card.id,
         controllerId: player.id,
         costItems: [attackCostItem],
-        effectItems: [
-          {
-            type: EffectItemType.DECLARE_ATTACK,
-            controllerId: player.id,
-            cardId: card.id,
-            effect: {
-              executionType: EffectExecutionType.IMMEDIATE,
-              type: EffectType.DECLARE_ATTACK,
-              target: Target.PLAYER,
-            },
-          },
-        ],
+        effectItems: [attackEffectItem],
       })
     }
   }
