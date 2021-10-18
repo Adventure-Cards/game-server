@@ -27,7 +27,7 @@ function processCostPlayer(initialGame: IGame, cost: ICost, playerId: string): I
 
   switch (cost.type) {
     case CostType.MANA:
-      player.mana -= cost.amount
+      player.currentMana -= cost.amount
       break
     default:
       throw new Error(`unhandled CostTarget`)

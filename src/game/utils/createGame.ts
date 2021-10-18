@@ -32,7 +32,8 @@ export async function createGame(metadata: IGameMetadata): Promise<IGame> {
         id: uuidv4(),
         address: address,
         life: 20,
-        mana: 1,
+        currentMana: 1,
+        totalMana: 1,
         cards: deck.cards,
 
         availableActions: [],

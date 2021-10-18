@@ -16,7 +16,8 @@ export function getGameStateForPlayer(game: IGame, address: string): IGameStateF
       id: player.id,
       address: player.address,
       life: player.life,
-      mana: player.mana,
+      totalMana: player.totalMana,
+      currentMana: player.currentMana,
       hand: player.cards.filter((card) => card.location === CardLocation.HAND),
       numberOfCardsInLibrary: player.cards.filter((card) => card.location === CardLocation.LIBRARY)
         .length,
@@ -29,7 +30,8 @@ export function getGameStateForPlayer(game: IGame, address: string): IGameStateF
       id: opponent.id,
       address: opponent.address,
       life: opponent.life,
-      mana: opponent.mana,
+      totalMana: opponent.totalMana,
+      currentMana: opponent.currentMana,
       numberOfCardsInHand: opponent.cards.filter((card) => card.location === CardLocation.HAND)
         .length,
       numberOfCardsInLibrary: opponent.cards.filter(
@@ -65,7 +67,8 @@ export function getGameStateForPlaytest(game: IGame): IGameStateForPlaytest {
       id: player1.id,
       address: player1.address,
       life: player1.life,
-      mana: player1.mana,
+      totalMana: player1.totalMana,
+      currentMana: player1.currentMana,
       hand: player1.cards.filter((card) => card.location === CardLocation.HAND),
       numberOfCardsInLibrary: player1.cards.filter((card) => card.location === CardLocation.LIBRARY)
         .length,
@@ -78,7 +81,8 @@ export function getGameStateForPlaytest(game: IGame): IGameStateForPlaytest {
       id: player2.id,
       address: player2.address,
       life: player2.life,
-      mana: player2.mana,
+      totalMana: player2.totalMana,
+      currentMana: player2.currentMana,
       hand: player2.cards.filter((card) => card.location === CardLocation.HAND),
       numberOfCardsInLibrary: player2.cards.filter((card) => card.location === CardLocation.LIBRARY)
         .length,

@@ -11,7 +11,7 @@ import { moveCardToStack } from '../utils/helpers'
 export function submitAction(initialGame: IGame, action: IAction): IGame {
   let game = { ...initialGame }
 
-  console.log('received action: ', action)
+  console.log('received action: ', action.type)
 
   // get the player object who submitted the action
   const player = game.players.find((player) => player.id === action.controllerId)

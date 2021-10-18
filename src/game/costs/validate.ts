@@ -19,7 +19,7 @@ function validateCostPlayer(game: IGame, cost: ICost, playerId: string): boolean
 
   switch (cost.type) {
     case CostType.MANA:
-      if (player.mana < cost.amount) {
+      if (player.currentMana < cost.amount) {
         return false
       }
       break

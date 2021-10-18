@@ -190,7 +190,8 @@ function advancePhase(initialGame: IGame): IGame {
     game = drawCard(game, inactivePlayer.id)
 
     // reset mana to current turn count
-    inactivePlayer.mana = game.turn
+    inactivePlayer.totalMana = game.turn > 8 ? 8 : game.turn
+    inactivePlayer.currentMana = inactivePlayer.totalMana
 
     // immediately advance the phase without giving anyone priority
     game = advancePhase(game)

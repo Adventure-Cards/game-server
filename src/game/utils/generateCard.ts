@@ -50,7 +50,6 @@ export function generateCard(cardData: ICardData): ICard {
 
         location: CardLocation.LIBRARY,
         tapped: false,
-        attacking: false,
         cost: cost,
         actions: [],
         activeAttack: null,
@@ -67,7 +66,6 @@ export function generateCard(cardData: ICardData): ICard {
 
         location: CardLocation.LIBRARY,
         tapped: false,
-        attacking: false,
         cost: cost,
         actions: [],
         activeAttack: null,
@@ -84,7 +82,6 @@ export function generateCard(cardData: ICardData): ICard {
 
         location: CardLocation.LIBRARY,
         tapped: false,
-        attacking: false,
         cost: cost,
         actions: [],
         activeAttack: null,
@@ -101,7 +98,6 @@ export function generateCard(cardData: ICardData): ICard {
 
         location: CardLocation.LIBRARY,
         tapped: false,
-        attacking: false,
         cost: cost,
         actions: [],
         activeAttack: null,

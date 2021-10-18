@@ -62,8 +62,6 @@ export function registerPlaytestHandlers(io: Server, socket: Socket): void {
   })
 
   socket.on('playtest:game:action:submit', ({ gameId, action }: IPlaytestSubmitAction) => {
-    console.log('game:action:submit', { gameId, action })
-
     // validate priority, turn, etc
     store.games[gameId] = submitAction(store.games[gameId], action)
   })

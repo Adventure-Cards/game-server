@@ -28,14 +28,24 @@ export function processCombatDamage(initialGame: IGame): IGame {
       (card) => card.activeBlock?.attackingCardId === activeAttackCard.id
     )
 
-    let remainingDamage = activeAttackCard.type === CardType.CREATURE ? activeAttackCard.attack : 0
+    const attackerAttack = activeAttackCard.type === CardType.CREATURE ? activeAttackCard.attack : 0
+    const attackerDefense =
+      activeAttackCard.type === CardType.CREATURE ? activeAttackCard.defense : 0
+
+    let remainingDamage = attackerAttack
 
     for (const blocker of blockers) {
+      const blockerAttack = blocker.type == CardType.CREATURE ? blocker.attack : 0
       const blockerDefense = blocker.type == CardType.CREATURE ? blocker.defense : 0
 
-      if (remainingDamage >= blockerDefense) {
+      if (attackerAttack >= blockerDefense) {
         // blocker dies!
-        blocker.location === CardLocation.GRAVEYARD
+        blocker.location = CardLocation.GRAVEYARD
+      }
+
+      if (blockerAttack >= attackerDefense) {
+        // attacker dies!
+        activeAttackCard.location = CardLocation.GRAVEYARD
       }
 
       remainingDamage -= blockerDefense
@@ -45,6 +55,11 @@ export function processCombatDamage(initialGame: IGame): IGame {
 
     // remove activeAttack
     activeAttackCard.activeAttack = null
+  }
+
+  for (const activeBlockCard of activeBlockCards) {
+    // remove activeBlock
+    activeBlockCard.activeBlock = null
   }
 
   return game

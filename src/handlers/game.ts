@@ -29,8 +29,6 @@ export function registerGameHandlers(io: Server, socket: Socket): void {
   })
 
   socket.on('game:action:submit', ({ gameId, action }: IGameSubmitAction) => {
-    console.log('game:action:submit', { gameId, action })
-
     // validate priority, turn, etc
     store.games[gameId] = submitAction(store.games[gameId], action)
   })
