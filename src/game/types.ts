@@ -215,21 +215,32 @@ export type ICost = ICostMana | ICostSacrificePermanent | ICostTap
 // it refers to a specific cost being paid in the game
 
 export interface IBaseCostItem {
-  cost: ICost
-  target: Target
+  type: CostItemType
+  controllerId: string
+  arguments?: { [key: string]: string | number }
 }
 
-export interface ICostItemPlayer extends IBaseCostItem {
-  target: Target.PLAYER
-  playerId: string
+export enum CostItemType {
+  TAP = 'TAP',
+  MANA = 'MANA',
+  SACRIFICE_PERMANENT = 'SACRIFICE_PERMANENT',
 }
 
-export interface ICostItemCard extends IBaseCostItem {
-  target: Target.CARD
-  cardId: string
+export interface ICostItemTap extends IBaseCostItem {
+  type: CostItemType.TAP
+  arguments: {
+    cardId: string
+  }
 }
 
-export type ICostItem = ICostItemPlayer | ICostItemCard
+export interface ICostItemMana extends IBaseCostItem {
+  type: CostItemType.MANA
+  arguments: {
+    amount: number
+  }
+}
+
+export type ICostItem = ICostItemTap | ICostItemMana
 
 // EFFECTS
 // an Effect exists as part of the static data associated with a card
@@ -335,9 +346,6 @@ export interface IBaseEffectItem {
 export enum EffectItemType {
   PASS_PRIORITY = 'PASS_PRIORITY',
   CAST = 'CAST',
-  TARGETS_PLAYER = 'TARGETS_PLAYER',
-  TARGETS_CARD = 'TARGETS_CARD',
-  WITH_AMOUNT = 'WITH_AMOUNT',
   DECLARE_ATTACK = 'DECLARE_ATTACK',
   DECLARE_BLOCK = 'DECLARE_BLOCK',
 }

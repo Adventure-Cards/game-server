@@ -4,19 +4,18 @@ import {
   ICard,
   IAction,
   ActionType,
-  Target,
   ICostItem,
   IEffectItem,
   AbilitySpeed,
   Phase,
   CardType,
-  CostType,
   EffectItemType,
   CardLocation,
   IEffectItemCast,
   IEffectItemDeclareAttack,
   EffectExecutionType,
   IEffectItemDeclareBlock,
+  CostItemType,
 } from '../types'
 
 // import { validateEffectItem } from '../effects'
@@ -72,9 +71,11 @@ function getActionsForCard(game: IGame, player: IPlayer, card: ICard) {
     game.hasPriority === player.id
   ) {
     const castCostItem: ICostItem = {
-      target: Target.PLAYER,
-      playerId: player.id,
-      cost: card.cost,
+      type: CostItemType.MANA,
+      controllerId: player.id,
+      arguments: {
+        amount: card.cost.amount,
+      },
     }
     const castEffectItem: IEffectItemCast = {
       type: EffectItemType.CAST,
@@ -108,11 +109,12 @@ function getActionsForCard(game: IGame, player: IPlayer, card: ICard) {
     game.phase === Phase.MAIN
   ) {
     const castCostItem: ICostItem = {
-      target: Target.PLAYER,
-      playerId: player.id,
-      cost: card.cost,
+      type: CostItemType.MANA,
+      controllerId: player.id,
+      arguments: {
+        amount: card.cost.amount,
+      },
     }
-
     const castEffectItem: IEffectItemCast = {
       type: EffectItemType.CAST,
       executionType: EffectExecutionType.RESPONDABLE,
@@ -157,28 +159,28 @@ function getActionsForCard(game: IGame, player: IPlayer, card: ICard) {
 
     // prepare and validate cost items
     const costItems: ICostItem[] = []
-    for (const _cost of ability.costs) {
-      const cost = { ..._cost }
+    // for (const _cost of ability.costs) {
+    //   const cost = { ..._cost }
 
-      switch (cost.target) {
-        case Target.PLAYER:
-          costItems.push({
-            cost: cost,
-            target: cost.target,
-            playerId: player.id,
-          })
-          break
-        case Target.CARD:
-          costItems.push({
-            cost: cost,
-            target: cost.target,
-            cardId: card.id,
-          })
-          break
-        default:
-          throw new Error(`unhandled cost target`)
-      }
-    }
+    //   switch (cost.target) {
+    //     case Target.PLAYER:
+    //       costItems.push({
+    //         cost: cost,
+    //         target: cost.target,
+    //         playerId: player.id,
+    //       })
+    //       break
+    //     case Target.CARD:
+    //       costItems.push({
+    //         cost: cost,
+    //         target: cost.target,
+    //         cardId: card.id,
+    //       })
+    //       break
+    //     default:
+    //       throw new Error(`unhandled cost target`)
+    //   }
+    // }
 
     let canAffordCosts = true
     for (const costItem of costItems) {
@@ -221,11 +223,12 @@ function getActionsForCard(game: IGame, player: IPlayer, card: ICard) {
     player.id === game.hasTurn
   ) {
     const attackCostItem: ICostItem = {
-      cost: { target: Target.CARD, type: CostType.TAP },
-      target: Target.CARD,
-      cardId: card.id,
+      type: CostItemType.TAP,
+      controllerId: player.id,
+      arguments: {
+        cardId: card.id,
+      },
     }
-
     const attackEffectItem: IEffectItemDeclareAttack = {
       type: EffectItemType.DECLARE_ATTACK,
       executionType: EffectExecutionType.IMMEDIATE,
