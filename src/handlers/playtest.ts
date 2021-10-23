@@ -15,6 +15,10 @@ interface IPlaytestGameJoin {
   gameId: string
 }
 
+interface IPlaytestGameLeave {
+  gameId: string
+}
+
 interface IPlaytestSubmitAction {
   gameId: string
   action: IAction
@@ -59,6 +63,11 @@ export function registerPlaytestHandlers(io: Server, socket: Socket): void {
   socket.on('playtest:game:join', ({ gameId }: IPlaytestGameJoin) => {
     console.log('playtest:game:join', { gameId })
     socket.join(`playtest-${gameId}`)
+  })
+
+  socket.on('playtest:game:leave', ({ gameId }: IPlaytestGameLeave) => {
+    console.log('playtest:game:leave', { gameId })
+    socket.leave(`playtest-${gameId}`)
   })
 
   socket.on('playtest:game:action:submit', ({ gameId, action }: IPlaytestSubmitAction) => {
