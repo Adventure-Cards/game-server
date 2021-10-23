@@ -3,7 +3,7 @@ services:
   - type: web
     name: game-server
     env: node
-    repo: https://github.com/Adventure-Cards/game-server-v0.git
+    repo: https://github.com/Adventure-Cards/game-server.git
     plan: standard
     branch: main
     buildCommand: yarn install --production=false && yarn build
@@ -31,7 +31,7 @@ services:
       - key: PORT
         value: '8001'
       - key: ALLOWED_ORIGINS
-        value: '0xadventure.cards'
+        value: '*'
 
   # private Redis instance
   - type: pserv
