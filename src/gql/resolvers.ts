@@ -1,20 +1,27 @@
 import type { Resolvers } from './__generated__/gql-codegen'
 
-import { getDeck } from '../../src/game/utils/getDeck'
+import { getDeck, getDecksByAddress } from './thegraph'
 
 import { Deck } from './__generated__/gql-codegen'
 
 export const resolvers: Resolvers = {
   Query: {
     deck: async (_, { mintId }) => {
-      const _deck = await getDeck(mintId)
-      if (!_deck) {
+      const deck = await getDeck(mintId)
+      if (!deck) {
         throw new Error(`Unable to find Deck`)
       }
 
-      const __deck: Deck = { ..._deck, mintId: _deck.numericId }
+      const _deck: Deck = { ...deck, mintId: deck.numericId }
 
-      return __deck
+      return _deck
+    },
+    decksByAddress: async (_, { address }) => {
+      const decks = await getDecksByAddress(address)
+
+      const _decks: Deck[] = decks.map((deck) => ({ ...deck, mintId: deck.numericId }))
+
+      return _decks
     },
   },
 }

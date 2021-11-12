@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid'
 
-import { IGameMetadata, IGame, Phase, IPlayer, CardLocation } from '../types'
+import { IGameMetadata, IGame, IPlayer, Phase, CardLocation } from '../types'
 
 import { updateActions } from '../actions/update'
 import { shuffle, randomIntFromInterval } from './helpers'

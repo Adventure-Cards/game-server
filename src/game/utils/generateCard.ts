@@ -10,29 +10,27 @@ import {
   CardLocation,
   ICost,
   IAbility,
-  EffectType,
   Target,
   CostType,
-  EffectExecutionType,
+  ExecutionType,
   AbilitySpeed,
-  IEffect,
+  IEffectTemplate,
+  EffectItemType,
 } from '../types'
 
 import type { ICardData } from './getCardData'
 
+const defaultCard = {
+  // dynamic card data
+  location: CardLocation.LIBRARY,
+  tapped: false,
+  actions: [],
+  activeAttack: null,
+  activeBlock: null,
+}
+
 export function generateCard(cardData: ICardData): ICard {
   let card: ICard
-
-  // first get card cost
-  const foundCost = costs.find((cost) => cost.id === cardData.cost)
-  if (!foundCost) {
-    throw new Error(`costId not found: ${cardData.cost}`)
-  }
-  const cost: ICost = {
-    type: (<any>CostType)[foundCost.type],
-    target: (<any>Target)[foundCost.target],
-    amount: Number(foundCost.amount),
-  }
 
   switch (cardData.type) {
     case 'CREATURE':
@@ -40,68 +38,52 @@ export function generateCard(cardData: ICardData): ICard {
         throw new Error('creature card missing stats')
       }
       card = {
+        ...defaultCard,
+        id: uuidv4(),
         name: cardData.name,
         level: cardData.level,
-        id: uuidv4(),
-        type: (<any>CardType)[cardData.type],
-        abilities: [],
+        type: CardType.CREATURE,
+        cost: Number(cardData.cost),
+
         attack: Number(cardData.attack),
         defense: Number(cardData.defense),
-
-        location: CardLocation.LIBRARY,
-        tapped: false,
-        cost: cost,
-        actions: [],
-        activeAttack: null,
-        activeBlock: null,
+        abilities: [],
       }
       break
     case 'ARTIFACT':
       card = {
+        ...defaultCard,
+        id: uuidv4(),
         name: cardData.name,
         level: cardData.level,
-        id: uuidv4(),
-        type: (<any>CardType)[cardData.type],
-        abilities: [],
+        type: CardType.ARTIFACT,
+        cost: Number(cardData.cost),
 
-        location: CardLocation.LIBRARY,
-        tapped: false,
-        cost: cost,
-        actions: [],
-        activeAttack: null,
-        activeBlock: null,
+        abilities: [],
       }
       break
     case 'ENCHANTMENT':
       card = {
+        ...defaultCard,
+        id: uuidv4(),
         name: cardData.name,
         level: cardData.level,
-        id: uuidv4(),
-        type: (<any>CardType)[cardData.type],
-        abilities: [],
+        type: CardType.ENCHANTMENT,
+        cost: Number(cardData.cost),
 
-        location: CardLocation.LIBRARY,
-        tapped: false,
-        cost: cost,
-        actions: [],
-        activeAttack: null,
-        activeBlock: null,
+        abilities: [],
       }
       break
     case 'SPELL':
       card = {
+        ...defaultCard,
+        id: uuidv4(),
         name: cardData.name,
         level: cardData.level,
-        id: uuidv4(),
-        type: (<any>CardType)[cardData.type],
-        effects: [],
+        type: CardType.SPELL,
+        cost: Number(cardData.cost),
 
-        location: CardLocation.LIBRARY,
-        tapped: false,
-        cost: cost,
-        actions: [],
-        activeAttack: null,
-        activeBlock: null,
+        effectTemplates: [],
       }
       break
     default:
@@ -109,89 +91,96 @@ export function generateCard(cardData: ICardData): ICard {
   }
 
   if (card.type === CardType.SPELL) {
-    if (cardData.effect1) {
-      const effect1 = getEffect(cardData.effect1)
-      card.effects.push(effect1)
+    if (cardData.effect_1 && cardData.effect_1_args) {
+      const effectTemplate = getEffectTemplate(cardData.effect_1)
+      const prepopulatedArguments = JSON.parse(cardData.effect_1_args)
+      card.effectTemplates.push({
+        ...effectTemplate,
+        arguments: { ...effectTemplate.arguments, ...prepopulatedArguments },
+      })
     }
-    if (cardData.effect2) {
-      const effect1 = getEffect(cardData.effect2)
-      card.effects.push(effect1)
-    }
-    if (cardData.effect3) {
-      const effect1 = getEffect(cardData.effect3)
-      card.effects.push(effect1)
+    if (cardData.effect_2 && cardData.effect_2_args) {
+      const effectTemplate = getEffectTemplate(cardData.effect_2)
+      const prepopulatedArguments = JSON.parse(cardData.effect_2_args)
+      card.effectTemplates.push({
+        ...effectTemplate,
+        arguments: { ...effectTemplate.arguments, ...prepopulatedArguments },
+      })
     }
   } else {
-    if (cardData.ability_1) {
-      const ability1 = getAbility(cardData.ability_1)
-      card.abilities.push(ability1)
-    }
-    if (cardData.ability_2) {
-      const ability2 = getAbility(cardData.ability_2)
-      card.abilities.push(ability2)
-    }
+    // if (cardData.ability_1) {
+    //   const ability1 = getAbility(cardData.ability_1)
+    //   card.abilities.push(ability1)
+    // }
+    // if (cardData.ability_2) {
+    //   const ability2 = getAbility(cardData.ability_2)
+    //   card.abilities.push(ability2)
+    // }
   }
 
   return card
 }
 
-function getAbility(abilityId: string): IAbility {
-  const foundAbility = abilities.find((ability) => ability.id === abilityId)
-  if (!foundAbility) {
-    throw new Error(`abilityId not found: ${abilityId}`)
-  }
+// function getAbility(abilityId: string): IAbility {
+//   const foundAbility = abilities.find((ability) => ability.id === abilityId)
+//   if (!foundAbility) {
+//     throw new Error(`abilityId not found: ${abilityId}`)
+//   }
 
-  const result: IAbility = {
-    id: foundAbility.id,
-    name: foundAbility.name,
-    description: foundAbility.description,
-    speed: foundAbility.speed as AbilitySpeed,
-    costs: [],
-    effects: [],
-  }
+//   const result: IAbility = {
+//     id: foundAbility.id,
+//     name: foundAbility.name,
+//     description: foundAbility.description,
+//     speed: foundAbility.speed as AbilitySpeed,
+//     costs: [],
+//     effects: [],
+//   }
 
-  const costKeys = ['cost1', 'cost2', 'cost3']
-  costKeys.forEach((costIdx) => {
-    const costId = foundAbility[costIdx as 'cost1']
+//   const costKeys = ['cost1', 'cost2', 'cost3']
+//   costKeys.forEach((costIdx) => {
+//     const costId = foundAbility[costIdx as 'cost1']
 
-    if (costId !== '') {
-      result.costs.push(getCost(costId))
-    }
-  })
+//     if (costId !== '') {
+//       result.costs.push(getCost(costId))
+//     }
+//   })
 
-  const effectKeys = ['effect1', 'effect2', 'effect3']
-  effectKeys.forEach((effectIdx) => {
-    const effectId = foundAbility[effectIdx as 'cost1']
+//   const effectKeys = ['effect1', 'effect2', 'effect3']
+//   effectKeys.forEach((effectIdx) => {
+//     const effectId = foundAbility[effectIdx as 'cost1']
 
-    if (effectId !== '') {
-      result.effects.push(getEffect(effectId))
-    }
-  })
+//     if (effectId !== '') {
+//       result.effects.push(getEffect(effectId))
+//     }
+//   })
 
-  return result
-}
+//   return result
+// }
 
-function getCost(costId: string): ICost {
-  const foundCost = costs.find((cost) => cost.id === costId)
-  if (!foundCost) {
-    throw new Error(`costId not found: ${costId}`)
-  }
+// function getCost(costId: string): ICost {
+//   const foundCost = costs.find((cost) => cost.id === costId)
+//   if (!foundCost) {
+//     throw new Error(`costId not found: ${costId}`)
+//   }
 
-  return {
-    type: (<any>CostType)[foundCost.type],
-    target: (<any>Target)[foundCost.target],
-    amount: Number(foundCost.amount),
-  }
-}
+//   return {
+//     type: (<any>CostType)[foundCost.type],
+//     target: (<any>Target)[foundCost.target],
+//     amount: Number(foundCost.amount),
+//   }
+// }
 
-function getEffect(effectId: string): IEffect {
+function getEffectTemplate(effectId: string): IEffectTemplate {
   const foundEffect = effects.find((effect) => effect.id === effectId)
   if (!foundEffect) {
     throw new Error(`effectId not found: ${effectId}`)
   }
 
+  const defaultArguments = JSON.parse(foundEffect.arguments)
+
   return {
-    type: (<any>EffectType)[foundEffect.type],
-    executionType: (<any>EffectExecutionType)[foundEffect.executionType],
+    type: (<any>EffectItemType)[foundEffect.type],
+    executionType: ExecutionType.RESPONDABLE,
+    arguments: defaultArguments,
   }
 }

@@ -1,116 +1,139 @@
 [
   {
     "location": "of the West",
+    "rarity": "legendary",
     "color": "white",
     "effect": "When this creature enters the battlefield, destroy all artifacts target player controls"
   },
   {
     "location": "of the Plains",
+    "rarity": "legendary",
     "color": "blue",
     "effect": "When this creature enters the battlefield, destroy all artifacts target player controls"
   },
   {
     "location": "of the Swamp",
+    "rarity": "legendary",
     "color": "black",
     "effect": "When this creature enters the battlefield, destroy all artifacts target player controls"
   },
   {
     "location": "of the Low Hills",
+    "rarity": "legendary",
     "color": "red",
     "effect": "When this creature enters the battlefield, destroy all artifacts target player controls"
   },
   {
     "location": "of the Border",
+    "rarity": "legendary",
     "color": "green",
     "effect": "When this creature enters the battlefield, destroy all artifacts target player controls"
   },
   {
     "location": "of the Bright Mountains",
+    "rarity": "legendary",
     "color": "white",
     "effect": "When this creature enters the battlefield, destroy all artifacts target player controls"
   },
   {
     "location": "of the Polar Woods",
+    "rarity": "legendary",
     "color": "blue",
     "effect": "When this creature enters the battlefield, destroy all artifacts target player controls"
   },
   {
     "location": "of the Golden Palace",
+    "rarity": "legendary",
     "color": "black",
     "effect": "When this creature enters the battlefield, destroy all artifacts target player controls"
   },
   {
     "location": "of the Eastern Skies",
+    "rarity": "legendary",
     "color": "red",
     "effect": "When this creature enters the battlefield, destroy all artifacts target player controls"
   },
   {
     "location": "of the Haven",
+    "rarity": "legendary",
     "color": "green",
     "effect": "When this creature enters the battlefield, destroy all artifacts target player controls"
   },
   {
     "location": "of the Black Stone",
+    "rarity": "legendary",
     "color": "white",
     "effect": "When this creature enters the battlefield, destroy all artifacts target player controls"
   },
   {
     "location": "of the Frozen Castle",
+    "rarity": "legendary",
     "color": "blue",
     "effect": "When this creature enters the battlefield, destroy all artifacts target player controls"
   },
   {
     "location": "of the Magical Forest",
+    "rarity": "legendary",
     "color": "black",
     "effect": "When this creature enters the battlefield, destroy all artifacts target player controls"
   },
   {
     "location": "of the Eternal Land",
+    "rarity": "legendary",
     "color": "red",
     "effect": "When this creature enters the battlefield, destroy all artifacts target player controls"
   },
   {
     "location": "of the Arctic Blizzards",
+    "rarity": "legendary",
     "color": "green",
     "effect": "When this creature enters the battlefield, destroy all artifacts target player controls"
   },
   {
     "location": "of the Mountains",
+    "rarity": "legendary",
     "color": "white",
     "effect": "When this creature enters the battlefield, destroy all artifacts target player controls"
   },
   {
     "location": "of the Light",
+    "rarity": "mythic",
     "color": "blue",
     "effect": "When this creature enters the battlefield, destroy all artifacts target player controls"
   },
   {
     "location": "of the Sky",
+    "rarity": "mythic",
     "color": "black",
     "effect": "When this creature enters the battlefield, destroy all artifacts target player controls"
   },
   {
     "location": "of Hate",
+    "rarity": "mythic",
     "color": "red",
     "effect": "When this creature enters the battlefield, destroy all artifacts target player controls"
   },
   {
     "location": "of Illusion",
+    "rarity": "mythic",
     "color": "green",
     "effect": "When this creature enters the battlefield, destroy all artifacts target player controls"
   },
   {
     "location": "of the Dead",
+    "rarity": "mythic",
     "color": "white",
     "effect": "When this creature enters the battlefield, destroy all artifacts target player controls"
   },
   {
     "location": "of the Shadows",
+    "rarity": "mythic",
     "color": "blue",
     "effect": "When this creature enters the battlefield, destroy all artifacts target player controls"
   },
   {
     "location": "of the Void",
+    "rarity": "mythic",
     "color": "black",
     "effect": "When this creature enters the battlefield, destroy all artifacts target player controls"
   }

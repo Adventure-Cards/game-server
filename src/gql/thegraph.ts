@@ -1,6 +1,6 @@
 import { request, gql } from 'graphql-request'
 
-import { ICardData, getCardData } from './getCardData'
+import { ICardData, getCardData } from '../game/utils/getCardData'
 
 export interface IDeck {
   id: number
@@ -34,5 +34,27 @@ export async function getDeck(deckId: number): Promise<IDeck | null> {
   } catch (err) {
     console.warn(`could not fetch data for deckId: ${deckId}`)
     return null
+  }
+}
+
+const GET_DECKS_BY_OWNER_QUERY = gql`
+  query GetDecksByOwner($owner: String) {
+    adventureCardPacks(where: { owner: $owner }) {
+      id
+      numericId
+      owner
+      name
+      cards
+    }
+  }
+`
+
+export async function getDecksByAddress(address: string): Promise<IDeck[]> {
+  try {
+    const response = await request(SUBGRAPH, GET_DECKS_BY_OWNER_QUERY, { owner: address })
+    return response.adventureCardPacks
+  } catch (err) {
+    console.warn(`could not fetch data for address: ${address}`)
+    return []
   }
 }

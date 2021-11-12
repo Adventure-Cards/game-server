@@ -3,6 +3,7 @@ import { gql } from 'apollo-server-express'
 export const schema = gql`
   type Query {
     deck(mintId: Int!): Deck
+    decksByAddress(address: String!): [Deck]
   }
 
   type Deck {

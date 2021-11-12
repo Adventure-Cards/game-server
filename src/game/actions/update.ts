@@ -3,18 +3,15 @@ import {
   IPlayer,
   ICard,
   IAction,
-  ActionType,
   ICostItem,
   IEffectItem,
-  AbilitySpeed,
   Phase,
+  AbilitySpeed,
+  ActionType,
   CardType,
   EffectItemType,
   CardLocation,
-  IEffectItemCast,
-  IEffectItemDeclareAttack,
-  EffectExecutionType,
-  IEffectItemDeclareBlock,
+  ExecutionType,
   CostItemType,
 } from '../types'
 
@@ -32,18 +29,20 @@ export function updateActions(initialGame: IGame): IGame {
     })
 
     if (game.hasPriority === player.id) {
+      const passPriorityEffectItem: IEffectItem = {
+        type: EffectItemType.PASS_PRIORITY,
+        executionType: ExecutionType.IMMEDIATE,
+        arguments: {
+          playerId: player.id,
+        },
+      }
       const passPriorityAction: IAction = {
         type: ActionType.PRIORITY_ACTION,
         controllerId: player.id,
         costItems: [],
-        effectItems: [
-          {
-            type: EffectItemType.PASS_PRIORITY,
-            executionType: EffectExecutionType.IMMEDIATE,
-            controllerId: player.id,
-          },
-        ],
+        effectItems: [passPriorityEffectItem],
       }
+
       availableActions = [...availableActions, passPriorityAction]
     }
 
@@ -74,17 +73,40 @@ function getActionsForCard(game: IGame, player: IPlayer, card: ICard) {
       type: CostItemType.MANA,
       controllerId: player.id,
       arguments: {
-        amount: card.cost.amount,
+        amount: card.cost,
       },
     }
-    const castEffectItem: IEffectItemCast = {
-      type: EffectItemType.CAST,
-      executionType: EffectExecutionType.RESPONDABLE,
-      controllerId: player.id,
+
+    // this effect item needs to be built based on data from the card
+    // could be very complex logic based on arguments, will need to break out into helper
+    // what are some basic spell arguments?
+    // 1) target(s) (player, card on [stack, battlefield, graveyard, hand])
+    // 2) amount (number)
+    // 3) option (choose one - ...)
+
+    // then, the effect handler for this effectItem will dispatch some number of non-respondable effects
+    // propagating arguments where appropriate
+
+    const castEffectItem: IEffectItem = {
+      type: EffectItemType.CAST_SPELL,
+      executionType: ExecutionType.RESPONDABLE,
       arguments: {
         cardId: card.id,
       },
     }
+
+    const staticArguments = card.effectTemplates.reduce((acc, effectTemplate) => {
+      return { ...acc, ...effectTemplate.arguments }
+    }, {})
+
+    // const userArguments = card.effectTemplates.reduce((acc, effectTemplate) => {
+    //   return { ...acc, ...effectTemplate.arguments }
+    // }, {})
+
+    // const emptyArguments = Object.keys(castAction.arguments).filter(
+    //   (key) => castAction.arguments![key] === null
+    // )
+
     if (validateCostItem(game, castCostItem)) {
       actions.push({
         type: ActionType.CAST_ACTION,
@@ -92,11 +114,12 @@ function getActionsForCard(game: IGame, player: IPlayer, card: ICard) {
         controllerId: player.id,
         costItems: [castCostItem],
         effectItems: [castEffectItem],
+        arguments: staticArguments,
       })
     }
   }
 
-  // if its a spell, casting is the only possible action, so can return early
+  // if its a spell, casting is the only possible action, so return early
   if (card.type === CardType.SPELL) {
     return actions
   }
@@ -112,13 +135,12 @@ function getActionsForCard(game: IGame, player: IPlayer, card: ICard) {
       type: CostItemType.MANA,
       controllerId: player.id,
       arguments: {
-        amount: card.cost.amount,
+        amount: card.cost,
       },
     }
-    const castEffectItem: IEffectItemCast = {
-      type: EffectItemType.CAST,
-      executionType: EffectExecutionType.RESPONDABLE,
-      controllerId: player.id,
+    const castEffectItem: IEffectItem = {
+      type: EffectItemType.CAST_PERMANENT,
+      executionType: ExecutionType.RESPONDABLE,
       arguments: {
         cardId: card.id,
       },
@@ -135,84 +157,81 @@ function getActionsForCard(game: IGame, player: IPlayer, card: ICard) {
     }
   }
 
-  // handle permanent activated ability actions
-  for (const ability of card.abilities) {
-    // validate card is on battlefield
-    if (card.location !== CardLocation.BATTLEFIELD) {
-      continue
-    }
-
-    // validate ability speed
-    let speedOk = false
-    switch (ability.speed) {
-      case AbilitySpeed.NORMAL:
-        if (game.hasPriority === player.id && game.phase === Phase.MAIN) {
-          speedOk = true
-        }
-        break
-      default:
-        throw new Error(`unhandled ability speed`)
-    }
-    if (!speedOk) {
-      continue
-    }
-
-    // prepare and validate cost items
-    const costItems: ICostItem[] = []
-    // for (const _cost of ability.costs) {
-    //   const cost = { ..._cost }
-
-    //   switch (cost.target) {
-    //     case Target.PLAYER:
-    //       costItems.push({
-    //         cost: cost,
-    //         target: cost.target,
-    //         playerId: player.id,
-    //       })
-    //       break
-    //     case Target.CARD:
-    //       costItems.push({
-    //         cost: cost,
-    //         target: cost.target,
-    //         cardId: card.id,
-    //       })
-    //       break
-    //     default:
-    //       throw new Error(`unhandled cost target`)
-    //   }
-    // }
-
-    let canAffordCosts = true
-    for (const costItem of costItems) {
-      if (!validateCostItem(game, costItem)) {
-        canAffordCosts = false
-        break
+  // if card is on battlefield, create actions for activated abilities
+  if (card.location !== CardLocation.BATTLEFIELD) {
+    for (const ability of card.abilities) {
+      // validate ability speed
+      let speedOk = false
+      switch (ability.speed) {
+        case AbilitySpeed.NORMAL:
+          if (game.hasPriority === player.id && game.phase === Phase.MAIN) {
+            speedOk = true
+          }
+          break
+        default:
+          throw new Error(`unhandled ability speed`)
       }
+      if (!speedOk) {
+        continue
+      }
+
+      // prepare and validate cost items
+      const costItems: ICostItem[] = []
+      // for (const _cost of ability.costs) {
+      //   const cost = { ..._cost }
+
+      //   switch (cost.target) {
+      //     case Target.PLAYER:
+      //       costItems.push({
+      //         cost: cost,
+      //         target: cost.target,
+      //         playerId: player.id,
+      //       })
+      //       break
+      //     case Target.CARD:
+      //       costItems.push({
+      //         cost: cost,
+      //         target: cost.target,
+      //         cardId: card.id,
+      //       })
+      //       break
+      //     default:
+      //       throw new Error(`unhandled cost target`)
+      //   }
+      // }
+
+      let canAffordCosts = true
+      for (const costItem of costItems) {
+        if (!validateCostItem(game, costItem)) {
+          canAffordCosts = false
+          break
+        }
+      }
+      if (!canAffordCosts) {
+        continue
+      }
+
+      // prepare and submit effect items
+      const effectItems: IEffectItem[] = []
+
+      // for (const _effect of ability.effects) {
+      //   const effect = { ..._effect }
+
+      //   switch (effect.type) {
+      //     default:
+      //       throw new Error(`unhandled EffectType: ${effect.type}`)
+      //   }
+      // }
+
+      actions.push({
+        type: ActionType.ABILITY_ACTION,
+        abilityId: ability.id,
+        cardId: card.id,
+        controllerId: player.id,
+        costItems: costItems,
+        effectItems: effectItems,
+      })
     }
-    if (!canAffordCosts) {
-      continue
-    }
-
-    // prepare and submit effect items
-    const effectItems: IEffectItem[] = []
-
-    // for (const _effect of ability.effects) {
-    //   const effect = { ..._effect }
-
-    //   switch (effect.type) {
-    //     default:
-    //       throw new Error(`unhandled EffectType: ${effect.type}`)
-    //   }
-    // }
-
-    actions.push({
-      type: ActionType.ABILITY_ACTION,
-      abilityId: ability.id,
-      cardId: card.id,
-      controllerId: player.id,
-      costItems: costItems,
-      effectItems: effectItems,
-    })
   }
 
   // handle attack action
@@ -229,10 +248,9 @@ function getActionsForCard(game: IGame, player: IPlayer, card: ICard) {
         cardId: card.id,
       },
     }
-    const attackEffectItem: IEffectItemDeclareAttack = {
+    const attackEffectItem: IEffectItem = {
       type: EffectItemType.DECLARE_ATTACK,
-      executionType: EffectExecutionType.IMMEDIATE,
-      controllerId: player.id,
+      executionType: ExecutionType.IMMEDIATE,
       arguments: {
         attackingCardId: card.id,
         defendingPlayerId: opponent.id,
@@ -264,10 +282,9 @@ function getActionsForCard(game: IGame, player: IPlayer, card: ICard) {
       .filter((card) => card.activeAttack !== null)
 
     for (const activeAttackCard of activeAttackCards) {
-      const blockEffectItem: IEffectItemDeclareBlock = {
+      const blockEffectItem: IEffectItem = {
         type: EffectItemType.DECLARE_BLOCK,
-        executionType: EffectExecutionType.IMMEDIATE,
-        controllerId: player.id,
+        executionType: ExecutionType.IMMEDIATE,
         arguments: {
           blockingCardId: card.id,
           attackingCardId: activeAttackCard.id,

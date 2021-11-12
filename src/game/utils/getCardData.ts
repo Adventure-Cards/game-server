@@ -10,14 +10,14 @@ export interface ICardData {
   type: string
   cost?: string | undefined
   rarity?: string | undefined
-  color?: string | undefined
   attack?: string | undefined
   defense?: string | undefined
   ability_1?: string | undefined
   ability_2?: string | undefined
-  effect1?: string | undefined
-  effect2?: string | undefined
-  effect3?: string | undefined
+  effect_1?: string | undefined
+  effect_1_args?: string | undefined
+  effect_2?: string | undefined
+  effect_2_args?: string | undefined
 }
 
 export function getCardData(card: string): ICardData | null {
@@ -32,9 +32,6 @@ export function getCardData(card: string): ICardData | null {
   const words = card.split(' ')
 
   let result = helper()
-  if (!result) {
-    return null
-  }
 
   result = {
     ...result,
@@ -190,6 +187,6 @@ export function getCardData(card: string): ICardData | null {
       }
     }
 
-    return null
+    throw new Error('unable to process card!')
   }
 }

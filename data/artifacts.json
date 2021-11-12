@@ -1,7 +1,7 @@
 [
   {
     "name": "Divine Robe",
-    "cost": "mana-2",
+    "cost": "2",
     "attack": "0",
     "defense": "0",
     "ability_1": "expert-shot",
@@ -10,7 +10,7 @@
   },
   {
     "name": "Ghost Wand",
-    "cost": "mana-2",
+    "cost": "2",
     "attack": "0",
     "defense": "0",
     "ability_1": "expert-shot",
@@ -19,7 +19,7 @@
   },
   {
     "name": "Scythe",
-    "cost": "mana-2",
+    "cost": "2",
     "attack": "0",
     "defense": "0",
     "ability_1": "expert-shot",
@@ -28,7 +28,7 @@
   },
   {
     "name": "Staff",
-    "cost": "mana-2",
+    "cost": "2",
     "attack": "0",
     "defense": "0",
     "ability_1": "expert-shot",
@@ -37,7 +37,7 @@
   },
   {
     "name": "Gauntlet",
-    "cost": "mana-2",
+    "cost": "2",
     "attack": "0",
     "defense": "0",
     "ability_1": "expert-shot",
@@ -46,7 +46,7 @@
   },
   {
     "name": "Sword",
-    "cost": "mana-2",
+    "cost": "2",
     "attack": "2",
     "defense": "0",
     "ability_1": "expert-shot",
@@ -55,7 +55,7 @@
   },
   {
     "name": "Bow",
-    "cost": "mana-2",
+    "cost": "2",
     "attack": "0",
     "defense": "0",
     "ability_1": "expert-shot",
@@ -64,7 +64,7 @@
   },
   {
     "name": "Shield",
-    "cost": "mana-2",
+    "cost": "2",
     "attack": "0",
     "defense": "0",
     "ability_1": "expert-shot",
@@ -73,7 +73,7 @@
   },
   {
     "name": "Helmet",
-    "cost": "mana-2",
+    "cost": "2",
     "attack": "0",
     "defense": "0",
     "ability_1": "expert-shot",
@@ -82,7 +82,7 @@
   },
   {
     "name": "Boots",
-    "cost": "mana-2",
+    "cost": "2",
     "attack": "0",
     "defense": "0",
     "ability_1": "expert-shot",
@@ -91,7 +91,7 @@
   },
   {
     "name": "Ring",
-    "cost": "mana-2",
+    "cost": "2",
     "attack": "0",
     "defense": "1",
     "ability_1": "expert-shot",
@@ -100,7 +100,7 @@
   },
   {
     "name": "Amulet",
-    "cost": "mana-2",
+    "cost": "2",
     "attack": "0",
     "defense": "0",
     "ability_1": "expert-shot",
@@ -109,7 +109,7 @@
   },
   {
     "name": "Belt",
-    "cost": "mana-2",
+    "cost": "2",
     "attack": "1",
     "defense": "1",
     "ability_1": "expert-shot",
@@ -118,7 +118,7 @@
   },
   {
     "name": "Bracers",
-    "cost": "mana-2",
+    "cost": "2",
     "attack": "0",
     "defense": "0",
     "ability_1": "expert-shot",
@@ -127,7 +127,7 @@
   },
   {
     "name": "Cloak",
-    "cost": "mana-2",
+    "cost": "2",
     "attack": "0",
     "defense": "0",
     "ability_1": "expert-shot",
@@ -136,7 +136,7 @@
   },
   {
     "name": "Gloves",
-    "cost": "mana-2",
+    "cost": "2",
     "attack": "0",
     "defense": "0",
     "ability_1": "expert-shot",
@@ -145,7 +145,7 @@
   },
   {
     "name": "Greaves",
-    "cost": "mana-2",
+    "cost": "2",
     "attack": "0",
     "defense": "0",
     "ability_1": "expert-shot",
@@ -154,7 +154,7 @@
   },
   {
     "name": "Helm",
-    "cost": "mana-2",
+    "cost": "2",
     "attack": "0",
     "defense": "0",
     "ability_1": "expert-shot",
@@ -163,7 +163,7 @@
   },
   {
     "name": "Pendant",
-    "cost": "mana-2",
+    "cost": "2",
     "attack": "0",
     "defense": "0",
     "ability_1": "expert-shot",
@@ -172,7 +172,7 @@
   },
   {
     "name": "Potion",
-    "cost": "mana-2",
+    "cost": "2",
     "attack": "0",
     "defense": "0",
     "ability_1": "expert-shot",
@@ -181,7 +181,7 @@
   },
   {
     "name": "Scepter",
-    "cost": "mana-2",
+    "cost": "2",
     "attack": "0",
     "defense": "0",
     "ability_1": "expert-shot",
@@ -190,7 +190,7 @@
   },
   {
     "name": "Sigil",
-    "cost": "mana-2",
+    "cost": "2",
     "attack": "0",
     "defense": "0",
     "ability_1": "expert-shot",
@@ -199,7 +199,7 @@
   },
   {
     "name": "Tome",
-    "cost": "mana-2",
+    "cost": "2",
     "attack": "0",
     "defense": "0",
     "ability_1": "expert-shot",
@@ -208,7 +208,7 @@
   },
   {
     "name": "Crown",
-    "cost": "mana-2",
+    "cost": "2",
     "attack": "0",
     "defense": "0",
     "ability_1": "expert-shot",
@@ -217,7 +217,7 @@
   },
   {
     "name": "Ring",
-    "cost": "mana-2",
+    "cost": "2",
     "attack": "0",
     "defense": "2",
     "ability_1": "expert-shot",

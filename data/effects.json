@@ -1,9 +1,30 @@
 [
   {
-    "id": "damage-any-1",
+    "id": "damage-player",
+    "type": "DAMAGE_PLAYER",
+    "argument_1": "target",
+    "argument_2": "amount",
+    "arguments": "{\"target\": null, \"amount\": null}"
+  },
+  {
+    "id": "damage-any",
     "type": "DAMAGE_ANY",
-    "executionType": "RESPONDABLE",
-    "target": "",
-    "amount": "1"
+    "argument_1": "target",
+    "argument_2": "amount",
+    "arguments": "{\"target\": null, \"amount\": null}"
+  },
+  {
+    "id": "damage-creature",
+    "type": "DAMAGE_CREATURE",
+    "argument_1": "target",
+    "argument_2": "amount",
+    "arguments": "{\"target\": null, \"amount\": null}"
+  },
+  {
+    "id": "return-permanent-to-hand",
+    "type": "RETURN_PERMANENT_TO_HAND",
+    "argument_1": "target",
+    "argument_2": "",
+    "arguments": "{\"target\": null}"
   }
 ]

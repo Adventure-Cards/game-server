@@ -1,4 +1,4 @@
-import { IGame, IAction, ActionType, EffectExecutionType } from '../types'
+import { IGame, IAction, ActionType, ExecutionType } from '../types'
 
 import { validateEffectItem } from '../effects/validate'
 import { processEffectItem } from '../effects/process'
@@ -49,10 +49,10 @@ export function submitAction(initialGame: IGame, action: IAction): IGame {
   // handle effects based on execution type
   for (const effectItem of action.effectItems) {
     switch (effectItem.executionType) {
-      case EffectExecutionType.IMMEDIATE:
+      case ExecutionType.IMMEDIATE:
         game = processEffectItem(game, effectItem)
         break
-      case EffectExecutionType.RESPONDABLE: {
+      case ExecutionType.RESPONDABLE: {
         // if its a casting action, must move card location to stack
         if (action.type === ActionType.CAST_ACTION) {
           game = moveCardToStack(game, action.cardId)

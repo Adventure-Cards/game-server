@@ -30,11 +30,17 @@ export type Deck = {
 export type Query = {
   __typename?: 'Query';
   deck?: Maybe<Deck>;
+  decksByAddress?: Maybe<Array<Maybe<Deck>>>;
 };
 
 
 export type QueryDeckArgs = {
   mintId: Scalars['Int'];
+};
+
+
+export type QueryDecksByAddressArgs = {
+  address: Scalars['String'];
 };
 
 export type WithIndex<TObject> = TObject & Record<string, any>;
@@ -141,6 +147,7 @@ export type DeckResolvers<ContextType = any, ParentType extends ResolversParentT
 
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
   deck?: Resolver<Maybe<ResolversTypes['Deck']>, ParentType, ContextType, RequireFields<QueryDeckArgs, 'mintId'>>;
+  decksByAddress?: Resolver<Maybe<Array<Maybe<ResolversTypes['Deck']>>>, ParentType, ContextType, RequireFields<QueryDecksByAddressArgs, 'address'>>;
 }>;
 
 export type Resolvers<ContextType = any> = ResolversObject<{
