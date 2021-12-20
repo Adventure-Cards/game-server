@@ -1,5 +1,12 @@
 ## Adventure Cards - Offchain Game Engine
 
+Setup
+For default server that runs with client
+
+`PORT=8001 yarn dev`
+
+
+
 ### Turns, Phases, and the Core Rules
 
 This section describes the phases of a turn, and in doing so also describes the core rules of the game.
